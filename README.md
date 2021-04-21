@@ -1,4 +1,4 @@
-# OpenMO for GPU offloading
+# OpenMP for GPU offloading
 
 OpenMP for GPU offloading
 
