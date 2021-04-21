@@ -17,11 +17,11 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "OpenMO for GPU offloading"
-copyright = "2021, Thor Wikfeldt and individual contributors."
-author = "Thor Wikfeldt and individual contributors."
+project = "OpenMP for GPU offloading"
+copyright = "2021, ENCCS and CSC"
+author = "ENCCS and CSC"
 github_user = "ENCCS"
-github_repo_name = "lesson"
+github_repo_name = "openmp-gpu"
 github_version = "main"
 conf_py_path = "/content/"  # with leading and trailing slash
 
@@ -67,7 +67,7 @@ exclude_patterns = [
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_logo = "img/ENCCS.jpg"
+html_logo = "img/ENCCS_CSC_logos.jpg"
 html_favicon = "img/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
