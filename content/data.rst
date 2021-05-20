@@ -1,5 +1,5 @@
-data environment
-===================================
+Data environment
+================
 
 .. objectives::
 
@@ -13,10 +13,15 @@ data environment
    1. You need ...
    2. Basic understanding of ...
 
-data mapping
-------------------
-Due to distinct memory spaces on host and device, transferring data becomes inevitable. The map cluase on a device construct explicitly specifies how items  are mapped from the host to the device data environment.  The common mapped items consist of  arrays(array sections), scalars, pointers, and structure elements.
-The various forms of the map cluase are summarised in the following table
+Data mapping
+------------
+
+Due to distinct memory spaces on host and device, transferring data
+becomes inevitable. The map cluase on a device construct explicitly
+specifies how items are mapped from the host to the device data
+environment.  The common mapped items consist of arrays(array
+sections), scalars, pointers, and structure elements.  The various
+forms of the map cluase are summarised in the following table
 
 
 .. csv-table::
@@ -40,13 +45,19 @@ The various forms of the map cluase are summarised in the following table
 
 
 
-data region
-------------------
-How the target construct  creates storage, transfer data, and remove storage on the device  are clasiffied as two categories:  structured data region and unstructured data region.
+Data region
+-----------
+
+How the target construct creates storage, transfer data, and remove
+storage on the device are clasiffied as two categories: structured
+data region and unstructured data region.
 
 Structured Data Regions
-------------------
-The target data construct is used to create a structured data region which is convenient for providing persistent data on the device which could be used for subseqent target constructs.
+-----------------------
+
+The target data construct is used to create a structured data region
+which is convenient for providing persistent data on the device which
+could be used for subseqent target constructs.
 
 .. typealong:: Syntax
 
@@ -87,8 +98,10 @@ The target data construct is used to create a structured data region which is co
 
 
 Unstructured Data Regions
-------------------
-The unstructured data constructs have much more freedom in creating and deleting of data on the device at any appropriate point.
+-------------------------
+
+The unstructured data constructs have much more freedom in creating
+and deleting of data on the device at any appropriate point.
 
 .. typealong:: Syntax
 
@@ -119,7 +132,10 @@ The unstructured data constructs have much more freedom in creating and deleting
 
 .. challenge:: Example:  target unstructured data
 
-	The unstructured data constructs have much more freedom in creating and deleting of data on the device at any appropriate point.
+	The unstructured data constructs have much more freedom in
+	creating and deleting of data on the device at any appropriate
+	point.
+
    .. tabs::
 
       .. tab:: C/C++
@@ -134,7 +150,9 @@ The unstructured data constructs have much more freedom in creating and deleting
 
 
 Optimize Data Transfers
-------------------
- - Reduce the amount of data mapping between host and device
- - Try to keep data environment residing on the target device as long as possible
+-----------------------
+
+- Reduce the amount of data mapping between host and device
+- Try to keep data environment residing on the target device as long
+  as possible
 
