@@ -1,0 +1,6 @@
+clause:
+private(list)
+firstprivate(list)
+lastprivate(list)
+collapse(n)
+dist_schedule(kind[, chunk_size])

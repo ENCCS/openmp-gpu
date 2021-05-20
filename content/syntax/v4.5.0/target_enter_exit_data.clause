@@ -1,0 +1,6 @@
+clause: 
+if(scalar-logical-expression)
+device(scalar-integer-expression) 
+map( [map-type:] list)
+depend(dependence-type:list)
+nowait
