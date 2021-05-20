@@ -16,7 +16,6 @@ Intro
    :widths: auto
    :delim: ;
 
-   20 min ; :doc:`filename`
    20 min ; :doc:`target`
    20 min ; :doc:`data`
 
@@ -47,7 +46,6 @@ Who is the course for?
 
 About the course
 ----------------
-
 
 
 
