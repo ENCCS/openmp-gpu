@@ -1,0 +1,5 @@
+clause:
+if( [target data:]scalar-logical-expression)
+device(scalar-integer-expression) 
+map([map-type :] list)
+use_device_ptr(list)

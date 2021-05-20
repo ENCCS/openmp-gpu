@@ -1,0 +1,10 @@
+clause:
+if([ target:] scalar-expression)
+device(integer-expression) 
+private(list)
+firstprivate(list)
+map([map-type:] list)
+is_device_ptr(list)
+defaultmap(tofrom:scalar) 
+nowait
+depend(dependence-type : list)
