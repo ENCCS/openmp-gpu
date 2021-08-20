@@ -16,13 +16,15 @@ Intro
    :widths: auto
    :delim: ;
 
+   40 min ; :doc:`miniapp`
    20 min ; :doc:`target`
    20 min ; :doc:`data`
 
 .. toctree::
    :maxdepth: 1
-   :caption: The lesson
+   :caption: The lessons
 
+   miniapp
    target
    data
 
