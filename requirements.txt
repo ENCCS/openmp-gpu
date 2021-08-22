@@ -1,4 +1,4 @@
-Sphinx==3.3.1
+Sphinx
 sphinx_rtd_theme
 sphinx_rtd_theme_ext_color_contrast
 myst_nb
