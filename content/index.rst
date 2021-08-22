@@ -23,17 +23,31 @@ They will then be able to
    :widths: auto
    :delim: ;
 
+   20 min ; :doc:`introduction`
    40 min ; :doc:`miniapp`
-   20 min ; :doc:`target`
-   20 min ; :doc:`data`
+   40 min ; :doc:`gpu-architecture`
+   60 min ; :doc:`profiling`
+   40 min ; :doc:`target`
+   40 min ; :doc:`data`
+   40 min ; :doc:`interoperability`
+   60 min ; :doc:`multi-gpu`
+   40 min ; :doc:`interoperability`
+   40 min ; :doc:`porting`
 
 .. toctree::
    :maxdepth: 1
    :caption: The lessons
 
+   introduction
    miniapp
+   gpu-architecture
+   profiling
    target
    data
+   optimization
+   multi-gpu
+   interoperability
+   porting
 
 .. toctree::
    :maxdepth: 1

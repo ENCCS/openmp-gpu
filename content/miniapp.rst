@@ -78,7 +78,7 @@ the previous step at the same location *and* four adjacent locations:
    indicated 5-point stencil in yellow to move to the next time point
    :math:`m+1`.
 
-.. challenge::
+.. exercise::
 
    How much arithmetic must be done to evolve each location at each time step?
 
@@ -88,7 +88,7 @@ the previous step at the same location *and* four adjacent locations:
    numerators, 1 to divide by each pre-computed denominator, and two
    additions to update :math:`u`.
 
-.. challenge::
+.. exercise::
 
    How much arithmetic must be done to evolve all locations in the grid for 20 steps?
 
@@ -247,7 +247,7 @@ For example, to run an 800 by 800 grid for 1000 steps, run
 
 Try it now!
 
-.. challenge::
+.. exercise::
 
    How long does the iteration take if you double the number of steps?
    How long does the iteration take if you double the number of grid points in each direction?
@@ -280,7 +280,7 @@ The mini-app automatically sets up a disk of cold grid points in the center at t
 There is a fixed boundary layer of one grid point on all sides, two of which are warm (temperature 70 and 85) and two cold (temperature 20 and 5).
 Early on, the disk and its surroundings dominate the contents of the grid, but over time, the boundary layers have greater and greater influence.
 
-.. challenge::
+.. exercise::
 
    To which average temperature will the grid converge?
 
