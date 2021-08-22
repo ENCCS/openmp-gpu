@@ -1,5 +1,5 @@
-How should I think about running on multiple GPUs?
-==================================================
+Multiple GPUs
+=============
 
 .. questions::
 

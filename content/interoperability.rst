@@ -1,5 +1,5 @@
-How should my code work also with GPU libraries?
-================================================
+Working alongside GPU libraries
+===============================
 
 .. questions::
 

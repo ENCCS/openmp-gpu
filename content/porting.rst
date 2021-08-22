@@ -1,9 +1,9 @@
-How should I port code to OpenMP offloading?
-============================================
+Porting code to OpenMP offloading
+=================================
 
 .. questions::
 
-   - When and why should I use OpenMP offloading in my code
+   - When and why should I use OpenMP offloading in my code?
    - TODO
 
 .. objectives::

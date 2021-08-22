@@ -1,5 +1,5 @@
-How do I learn which parts of my code to focus on?
-==================================================
+Profiling code for GPUs
+=======================
 
 .. questions::
 

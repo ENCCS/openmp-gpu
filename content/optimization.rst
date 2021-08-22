@@ -1,5 +1,5 @@
-How should I optimize code that is offloaded already?
-=====================================================
+Optimizing OpenMP offloaded code
+================================
 
 .. questions::
 

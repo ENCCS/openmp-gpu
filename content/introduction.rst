@@ -1,9 +1,9 @@
-Introduction and motivation for OpenMP offloading
-=================================================
+Why OpenMP offloading?
+======================
 
 .. questions::
 
-   - When and why should I use OpenMP offloading in my code
+   - When and why should I use OpenMP offloading in my code?
    - TODO
 
 .. objectives::
