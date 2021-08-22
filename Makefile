@@ -18,3 +18,6 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+code-samples-tarball:
+	tar cfz openmp-gpu-code-samples.tgz --exclude \*.png --exclude heat_serial --exclude \*.o --exclude \*~ -C content code-samples
