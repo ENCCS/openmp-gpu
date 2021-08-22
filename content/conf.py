@@ -125,4 +125,4 @@ DIRECTIVES = [SignatureDirective, ParametersDirective, TypealongDirective]
 
 def setup(app):
     for obj in DIRECTIVES:
-        app.add_directive(obj.cssname(), obj)
+        app.add_directive(obj.get_cssname(), obj)
