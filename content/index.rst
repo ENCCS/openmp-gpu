@@ -1,14 +1,21 @@
 OpenMP for GPU offloading
 =========================
 
+This course is intended for newcomers to OpenMP GPU offloading.
+By the end of it, students will feel comfortable with the basic process of introducing OpenMP offloading constructs to a simple code base.
+They will then be able to
 
-Intro
-
-
+   - reason about which parts of the code to change,
+   - know how to manage data transfers, lifetimes and reductions,
+   - use a mini-app to observe behavior
+   - be aware of how to interact with GPU libraries
+   - be aware of how to interact with MPI
 
 .. prereq::
 
-   prerequisites
+   - Understanding of how to read either C++ or Fortran code
+   - Running programs from a terminal command line
+   - For one lesson, familiarity with MPI concepts for multi-node programming
 
 
 
@@ -42,22 +49,22 @@ Intro
 Who is the course for?
 ----------------------
 
-
+This course is for all people who seek to understand the basics of how OpenMP offloading for GPUs can improve the performance of their code.
 
 
 
 About the course
 ----------------
 
-
+This course is offered jointly by ENCCS (https://enccs.se/) and CSC (https://www.csc.fi/)
 
 
 
 See also
 --------
 
-
-
+https://github.com/OpenMP/Examples
+https://github.com/UoB-HPC/openmp-tutorial
 
 
 Credits
@@ -65,9 +72,8 @@ Credits
 
 The lesson file structure and browsing layout is inspired by and derived from
 `work <https://github.com/coderefinery/sphinx-lesson>`_ by `CodeRefinery
-<https://coderefinery.org/>`_ licensed under the `MIT license
-<http://opensource.org/licenses/mit-license.html>`_. We have copied and adapted
-most of their license text.
+<https://coderefinery.org/>`_ licensed under the `MIT license`_.
+We have copied and adapted most of their license text.
 
 Instructional Material
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -111,5 +117,7 @@ Software
 
 Except where otherwise noted, the example programs and other software provided
 with this repository are made available under the `OSI <http://opensource.org/>`_-approved
-`MIT license <https://opensource.org/licenses/mit-license.html>`_.
+`MIT license`_.
 
+
+.. _MIT license: https://opensource.org/licenses/mit-license.html
