@@ -26,7 +26,7 @@ Why use GPUs?
 ~~~~~~~~~~~~~
 .. figure:: img/comparison.png
    :align: center
-   :alt: alternate text
+   :alt: Comparison between GPUs and CPUs. Left panel shows the number of floating point operations, while the right panel the memoruy bandwidth.
 
 Second heading
 --------------
