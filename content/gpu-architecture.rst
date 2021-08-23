@@ -1,6 +1,7 @@
 Introduction to GPU architecture
 ================================
 
+
 .. questions::
 
    - What is different about GPUs?
@@ -19,10 +20,13 @@ Introduction to GPU architecture
    2. TODO
 
 
-First heading
--------------
-
-Some text
+Motivation
+----------
+Why use GPUs?
+~~~~~~~~~~~~~
+.. figure:: img/comparison.png
+   :align: center
+   :alt: alternate text
 
 Second heading
 --------------
