@@ -33,11 +33,13 @@ What is different?
 .. figure:: img/gpu_vs_cpu.png
    :align: center
    
-   The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
+
+The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
 
 Different Philosophies
 ~~~~~~~~~~~~~~~~~~~~~~
-They are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel.
+CPUs and GPUs  are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel. The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
+memory access latencies, both of which are expensive in terms of transistors.
 
 .. list-table::  
    :widths: 100 100
@@ -61,6 +63,18 @@ GPU Programming Model
 
 Heterogeneous CPU-GPU System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/HardwareReview.png
+   :align: center
+
+The GPUs (devices) can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
+
+Heterogeneous Programming
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/heteprogra.jpeg
+   :align: center
+
+CPU (host) and GPU (device) codes are mixed. The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. The device code is executed by doing calls to functions written specifically to take advantage of the GPU (kernels). The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
+
 
 Second heading
 --------------
