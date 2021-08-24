@@ -20,17 +20,43 @@ Introduction to GPU architecture
    2. TODO
 
 
-Motivation
-----------
+Introduction
+------------
 Why use GPUs?
 ~~~~~~~~~~~~~
 .. figure:: img/comparison.png
    :align: center
-   :alt: Comparison between GPUs and CPUs. Left panel shows the number of floating point operations, while the right panel the memoruy bandwidth.
+   
+   The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
+What is different?
+~~~~~~~~~~~~~~~~~~
+.. figure:: img/gpu_vs_cpu.png
+   :align: center
+   
+   The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
 
+
+Different Philosophies
+~~~~~~~~~~~~~~~~~~~~~
+  
+.. list-table:: Title
+   :widths: 100 100
+   :header-rows: 1
+
+   * - CPU
+     - GPU
+   * - General purpose
+     - Highly specialized for parallelism
+   * - Good for serial processing
+     - Good for parallel processing
+   * - Great for task parallelism
+     - Great for data parallelism
+   * - Low latency per thread
+     - High-throughput
+   * - Large area dedicated cache and control
+     - Hundreds of floating-point execution units
 Second heading
 --------------
-
 Some more text, with a figure
 
 .. figure:: img/stencil.svg
