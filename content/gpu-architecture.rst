@@ -35,11 +35,11 @@ What is different?
    
    The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
 
-
 Different Philosophies
-~~~~~~~~~~~~~~~~~~~~~
-  
-.. list-table:: Title
+~~~~~~~~~~~~~~~~~~~~~~
+They are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel.
+
+.. list-table::  
    :widths: 100 100
    :header-rows: 1
 
@@ -55,6 +55,13 @@ Different Philosophies
      - High-throughput
    * - Large area dedicated cache and control
      - Hundreds of floating-point execution units
+
+GPU Programming Model
+---------------------
+
+Heterogeneous CPU-GPU System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Second heading
 --------------
 Some more text, with a figure
