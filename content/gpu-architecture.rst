@@ -75,7 +75,7 @@ Heterogeneous Programming
 
 CPU (host) and GPU (device) codes are mixed. The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. The device code is executed by doing calls to functions written specifically to take advantage of the GPU (kernels). The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
 
-Thread Hierarchy. SIMT
+Thread Hierarchy
 ~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/ThreadExecution.jpeg
    :align: center
