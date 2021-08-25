@@ -76,11 +76,16 @@ Heterogeneous Programming
 CPU (host) and GPU (device) codes are mixed. The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. The device code is executed by doing calls to functions written specifically to take advantage of the GPU (kernels). The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
 
 Thread Hierarchy
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 .. figure:: img/ThreadExecution.jpeg
    :align: center
 
 Parallelism is exposed via ....
+
+Automatic Scalability
+~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png
+   :align: center
 
 Thread Scheduling. SIMT
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,6 +98,50 @@ Thread Scheduling. SIMT
 - Conditional branches are executed serially
 - Memory accesses are per warp (wave)
 
+CUDA C/HIP code example
+~~~~~~~~~~~~~~~~~~~~~~~
+
+## CUDA C
+   ...
+
+   int *a_d,*b_d,*c_d;
+   cudaMalloc((void **)&a_d,Nbytes);
+   cudaMalloc((void **)&b_d,Nbytes);
+   cudaMalloc((void **)&c_d,Nbytes);
+
+   cudaMemcpy(a_d,a,nBytes,cudaMemcpyHostToDevice);
+   cudaMemcpy(b_d,b,nBytes,cudaMemcpyHostToDevice);
+
+   vecAdd<<<gridSize,blockSize>>>(a_d,b_d,c_d,N);
+
+
+   cudaDeviceSynchronize();
+## HIP
+   ...
+
+   int *a_d,*b_d,*c_d;
+   hipMalloc((void **)&a_d,Nbytes);
+   hipMalloc((void **)&b_d,Nbytes);
+   hipMalloc((void **)&c_d,Nbytes);
+
+   hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
+   hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
+
+   hipLaunchKernelGGL(vecAdd,
+       dim3(gridSize), dim3(blockSize),
+       0, 0,
+       a_d,b_d,c_d,N);
+   hipDeviceSynchronize();
+   
+__global__ void vecAdd(int *a_d,int *b_d,int *c_d,int N)
+{
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if(i<N)
+  {
+    c_d[i] = a_d[i] + b_d[i];
+  }
+}
 Second heading
 --------------
 Some more text, with a figure
