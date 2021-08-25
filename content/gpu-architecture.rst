@@ -142,47 +142,16 @@ CUDA C/HIP code example
           
             hipDeviceSynchronize();
 
-## CUDA C
-   ...
-
-   int *a_d,*b_d,*c_d;
-   cudaMalloc((void **)&a_d,Nbytes);
-   cudaMalloc((void **)&b_d,Nbytes);
-   cudaMalloc((void **)&c_d,Nbytes);
-
-   cudaMemcpy(a_d,a,nBytes,cudaMemcpyHostToDevice);
-   cudaMemcpy(b_d,b,nBytes,cudaMemcpyHostToDevice);
-
-   vecAdd<<<gridSize,blockSize>>>(a_d,b_d,c_d,N);
-
-
-   cudaDeviceSynchronize();
-## HIP
-   ...
-
-   int *a_d,*b_d,*c_d;
-   hipMalloc((void **)&a_d,Nbytes);
-   hipMalloc((void **)&b_d,Nbytes);
-   hipMalloc((void **)&c_d,Nbytes);
-
-   hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
-   hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
-
-   hipLaunchKernelGGL(vecAdd,
-       dim3(gridSize), dim3(blockSize),
-       0, 0,
-       a_d,b_d,c_d,N);
-   hipDeviceSynchronize();
+.. code-block:: C++
    
-__global__ void vecAdd(int *a_d,int *b_d,int *c_d,int N)
-{
-  int i = blockIdx.x * blockDim.x + threadIdx.x;
-
-  if(i<N)
-  {
-    c_d[i] = a_d[i] + b_d[i];
-  }
-}
+   __global__ void vecAdd(int *a_d,int *b_d,int *c_d,int N)
+   {
+       int i = blockIdx.x * blockDim.x + threadIdx.x;
+       if(i<N)
+       {
+         c_d[i] = a_d[i] + b_d[i];
+       }
+   }
 
 
 Second heading
