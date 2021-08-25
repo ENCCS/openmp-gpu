@@ -125,20 +125,22 @@ CUDA C/HIP code example
             cudaDeviceSynchronize();
                                 
       .. tab:: HIP
+         
+         .. code-block:: C++
+            
+            ...
+
+            int *a_d,*b_d,*c_d;
+            hipMalloc((void **)&a_d,Nbytes);
+            hipMalloc((void **)&b_d,Nbytes);
+            hipMalloc((void **)&c_d,Nbytes);
+
+            hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
+            hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
+
+            hipLaunchKernelGGL(vecAdd, dim3(gridSize), dim3(blockSize), 0, 0, a_d,b_d,c_d,N);
           
-          ...
-
-          int *a_d,*b_d,*c_d;
-          hipMalloc((void **)&a_d,Nbytes);
-          hipMalloc((void **)&b_d,Nbytes);
-          hipMalloc((void **)&c_d,Nbytes);
-
-          hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
-          hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
-
-          hipLaunchKernelGGL(vecAdd, dim3(gridSize), dim3(blockSize), 0, 0, a_d,b_d,c_d,N);
-          
-          hipDeviceSynchronize();
+            hipDeviceSynchronize();
 
 ## CUDA C
    ...
