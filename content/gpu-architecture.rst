@@ -162,7 +162,7 @@ CUDA C/HIP code example
    }
 
 Memory Access 
-=============
+-------------
 
 Memory type
 ~~~~~~~~~~~
