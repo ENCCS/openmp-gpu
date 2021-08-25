@@ -169,22 +169,52 @@ Memory types
 .. figure:: img/memsch.png
    :align: center
 
-Understanding the basic memory architecture is highly beneficial in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the Global Memory.  have their physical memory where all the variables are stored. This is accessible from all active threads. 
+Understanding the basic memory architecture is criticall in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the Global Memory.  This is accessible by all active threads. 
 - *Registers*: The fastest form of memory. Accessible only by the thread
 - *Shared Memory*: Almost as fast as a registers. Visible by any thread within blocks
 - **Global Memory**: 150x slower then registers/shared memory. Accessible from any thread or from the host
 - Memory with special access pattern. Heavily cached on chip.
 
+Global Memory Access
+~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/coalesced.png
+   :align: center
+- Memory transactions are done in continuous blocks of 32B, 64B, or 128B
+- Address of the first element is aligned to 16x the size of the first element
 
+
+Shared Memory Access
+~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/shared_mem.png
+   :align: center
+
+- Shared memory is divided into banks (allowing only one access per cycle)
+- Parallel access: multiple addresses accessed over multiple banks
+- Serial access: multiple addresses in the same bank
+- Broadcast access: a single address read in a single bank (by the whole warp)
+
+Unified Memory Access
+~~~~~~~~~~~~~~~~~~~~~~
+   
+- Data movement appears more transparent to the application
+- Creates a pool of managed memory
+- Each allocation is accessible on both the CPU and GPU with the same pointer
+- System automatically migrates data between the host and device, as needed
+
+Streams
+-------
+
+Overlapping Computations and Data Movements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/Timeline.png
+   :align: center
+
+- A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
+- Operations within a stream are guaranteed to execute in the prescribed order
+- Operations in different streams may run concurrently or interleaved
 
 Second heading
 --------------
-Some more text, with a figure
-
-.. figure:: img/stencil.svg
-   :align: center
-
-   This is a sample image
 
 .. exercise::
 
