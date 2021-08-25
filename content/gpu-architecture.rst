@@ -80,6 +80,18 @@ Thread Hierarchy
 .. figure:: img/ThreadExecution.jpeg
    :align: center
 
+Parallelism is exposed via ....
+
+Thread Scheduling. SIMT
+~~~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/Loom.jpeg
+   :align: center
+
+- Warps (waves) of 32 (64) parallel threads
+- Consecutive, increasing thread IDs
+- All executing one common instruction at a time
+- Conditional branches are executed serially
+- Memory accesses are per warp (wave)
 
 Second heading
 --------------
