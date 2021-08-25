@@ -195,10 +195,23 @@ Shared Memory Access
 
 Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
+   
 - Data movement appears more transparent to the application
 - Creates a pool of managed memory
 - Each allocation is accessible on both the CPU and GPU with the same pointer
 - System automatically migrates data between the host and device, as needed
+
+Streams
+-------
+
+Overlapping Computations and Data Movements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. figure:: img/Timeline.png
+   :align: center
+
+- A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
+- Operations within a stream are guaranteed to execute in the prescribed order
+- Operations in different streams may run concurrently or interleaved
 
 Second heading
 --------------
