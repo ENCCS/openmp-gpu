@@ -164,12 +164,18 @@ CUDA C/HIP code example
 Memory Access 
 -------------
 
-Memory type
-~~~~~~~~~~~
+Memory types
+~~~~~~~~~~~~
 .. figure:: img/memsch.png
    :align: center
 
-GPUs 
+Understanding the basic memory architecture is highly beneficial in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the Global Memory.  have their physical memory where all the variables are stored. This is accessible from all active threads. 
+- *Registers*: The fastest form of memory. Accessible only by the thread
+- *Shared Memory*: Almost as fast as a registers. Visible by any thread within blocks
+- **Global Memory**: 150x slower then registers/shared memory. Accessible from any thread or from the host
+- Memory with special access pattern. Heavily cached on chip.
+
+
 
 Second heading
 --------------
