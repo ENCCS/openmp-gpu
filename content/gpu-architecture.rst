@@ -215,12 +215,6 @@ Overlapping Computations and Data Movements
 
 Second heading
 --------------
-Some more text, with a figure
-
-.. figure:: img/stencil.svg
-   :align: center
-
-   This is a sample image
 
 .. exercise::
 
