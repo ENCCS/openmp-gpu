@@ -101,6 +101,37 @@ Thread Scheduling. SIMT
 CUDA C/HIP code example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. typealong:: The field data structure
+
+   .. tabs::
+
+      .. tab:: Cuda C
+
+         .. code:: C++
+            :linenos:
+            ...
+
+   int *a_d,*b_d,*c_d;
+   cudaMalloc((void **)&a_d,Nbytes);
+   cudaMalloc((void **)&b_d,Nbytes);
+   cudaMalloc((void **)&c_d,Nbytes);
+
+   cudaMemcpy(a_d,a,nBytes,cudaMemcpyHostToDevice);
+   cudaMemcpy(b_d,b,nBytes,cudaMemcpyHostToDevice);
+
+   vecAdd<<<gridSize,blockSize>>>(a_d,b_d,c_d,N);
+
+
+   cudaDeviceSynchronize();
+
+                                
+      .. tab:: HIP
+
+         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
+                        :language: fortran
+                        :lines: 9-15
+
 ## CUDA C
    ...
 
@@ -142,6 +173,8 @@ __global__ void vecAdd(int *a_d,int *b_d,int *c_d,int N)
     c_d[i] = a_d[i] + b_d[i];
   }
 }
+
+
 Second heading
 --------------
 Some more text, with a figure
