@@ -27,7 +27,7 @@ Why use GPUs?
 .. figure:: img/comparison.png
    :align: center
    
-   The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
+The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
 What is different?
 ~~~~~~~~~~~~~~~~~~
 .. figure:: img/gpu_vs_cpu.png
