@@ -74,6 +74,7 @@ GPU Anatomy
    :align: center
 
 GPUs are ...
+
 Heterogeneous Programming
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/heteprogra.jpeg
