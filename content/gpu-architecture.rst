@@ -107,18 +107,8 @@ CUDA C/HIP code example
    .. tabs::
 
       .. tab:: Cuda C
-
-         .. code-block:: C++
-
-             for (let i = 0; i < 3; i++) {        // shows 0, then 1, then 2
-                 alert(i);
-             }
                                 
       .. tab:: HIP
-
-         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
-                        :language: fortran
-                        :lines: 9-15
 
 ## CUDA C
    ...
