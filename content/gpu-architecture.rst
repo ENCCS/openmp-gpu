@@ -110,7 +110,7 @@ CUDA C/HIP code example
          
          .. code-block:: C++
              
-             ...
+            ...
 
             int *a_d,*b_d,*c_d;
             cudaMalloc((void **)&a_d,Nbytes);
@@ -122,10 +122,23 @@ CUDA C/HIP code example
 
             vecAdd<<<gridSize,blockSize>>>(a_d,b_d,c_d,N);
 
-
             cudaDeviceSynchronize();
                                 
       .. tab:: HIP
+          
+          ...
+
+          int *a_d,*b_d,*c_d;
+          hipMalloc((void **)&a_d,Nbytes);
+          hipMalloc((void **)&b_d,Nbytes);
+          hipMalloc((void **)&c_d,Nbytes);
+
+          hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
+          hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
+
+          hipLaunchKernelGGL(vecAdd, dim3(gridSize), dim3(blockSize), 0, 0, a_d,b_d,c_d,N);
+          
+          hipDeviceSynchronize();
 
 ## CUDA C
    ...
