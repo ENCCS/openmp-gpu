@@ -68,6 +68,12 @@ Heterogeneous CPU-GPU System
 
 The GPUs (devices) can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
 
+GPU Anatomy
+~~~~~~~~~~~
+.. figure:: img/nvidia_block_diagram.jpeg
+   :align: center
+
+GPUs are ...
 Heterogeneous Programming
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/heteprogra.jpeg
