@@ -102,7 +102,7 @@ CUDA C/HIP code example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. typealong:: The field data structure
+.. typealong:: Vector addition on GPU
 
    .. tabs::
 
