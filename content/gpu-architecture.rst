@@ -20,8 +20,6 @@ Introduction to GPU architecture
    2. TODO
 
 
-Introduction
-------------
 Why use GPUs?
 ~~~~~~~~~~~~~
 .. figure:: img/comparison.png
@@ -161,8 +159,6 @@ CUDA C/HIP code example
        }
    }
 
-Memory Access 
--------------
 
 Memory types
 ~~~~~~~~~~~~
