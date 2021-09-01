@@ -14,24 +14,30 @@ contains
 
     implicit none
 
-    type(field), intent(inout) :: curr, prev
+    type(field), target, intent(inout) :: curr, prev
     real(dp) :: a, dt
     integer :: i, j, nx, ny
+    real(dp) :: dx, dy
+    real(dp), pointer, contiguous, dimension(:,:) :: currdata, prevdata
 
     ! Help the compiler avoid being confused
     nx = curr%nx
     ny = curr%ny
+    dx = curr%dx
+    dy = curr%dy
+    currdata => curr%data
+    prevdata => prev%data
 
     ! Determine the temperature field at next time step As we have
     ! fixed boundary conditions, the outermost gridpoints are not
     ! updated.
     do j = 1, ny
        do i = 1, nx
-          curr%data(i, j) = prev%data(i, j) + a * dt * &
-               & ((prev%data(i-1, j) - 2.0 * prev%data(i, j) + &
-               &   prev%data(i+1, j)) / curr%dx**2 + &
-               &  (prev%data(i, j-1) - 2.0 * prev%data(i, j) + &
-               &   prev%data(i, j+1)) / curr%dy**2)
+          currdata(i, j) = prevdata(i, j) + a * dt * &
+               & ((prevdata(i-1, j) - 2.0 * prevdata(i, j) + &
+               &   prevdata(i+1, j)) / dx**2 + &
+               &  (prevdata(i, j-1) - 2.0 * prevdata(i, j) + &
+               &   prevdata(i, j+1)) / dy**2)
        end do
     end do
   end subroutine evolve
