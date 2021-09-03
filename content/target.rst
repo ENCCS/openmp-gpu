@@ -1,13 +1,11 @@
 Offloading to GPU
 =================
 
-.. prereq::
+.. objectives::
 
-   more to add:
+   - Understand and be able to offload code to device
+   - Understand different constructs to create parallelism on device
 
-   1. target update/ target declare
-   2. excercise
-   3. loop directive from v5.0 
 
 
 .. _host_device_model:
@@ -25,7 +23,7 @@ transferred, the target device owns the data and accesses by the host
 A host/device model is generally used by OpenMP for offloading:
 
   - normally there is only one single host: e.g. CPU
-  - one or multiple target devices *of the same kind*: e.g. CPU, GPU, FPGA, ...
+  - one or multiple target devices *of the same kind*: e.g. coprocessor, GPU, FPGA, ...
   - unless with unified shared memory, the host and device have separate memory address space
 
 
@@ -44,16 +42,21 @@ A host/device model is generally used by OpenMP for offloading:
 
 
 .. _device_execution_model:
+
 Device execution model
 ----------------------
 
 The execution on the device is host-centric
 
-  1.the host creates the data environments on the device(s) 
-  2.the host maps data to the device data environment, which is data movement to the device 
-  3.the host offloads OpenMP target regions to the target device to be  executed
-  4.the host transfers data from the device to the host 
-  5.The host destroys the data environment on the device.
+1.the host creates the data environments on the device(s)   
+
+2.the host maps data to the device data environment, which is data movement to the device  
+
+3.the host offloads OpenMP target regions to the target device to be  executed  
+
+4.the host transfers data from the device to the host   
+
+5.the host destroys the data environment on the device
 
 
 
@@ -64,147 +67,275 @@ The ``TARGET`` construct consists of a *target* directive and an
 execution region. It is used to transfer both the control flow from
 the host to the device and the data between the host and device.
 
-
-.. typealong:: Syntax
-
-   .. tabs::
-
-      .. tab:: C/C++
-
-         .. literalinclude:: syntax/v4.5.0/target.c
-                        :language: c
-
-         .. literalinclude:: syntax/v4.5.0/target.clause
-                        :language: c
-
-      .. tab:: Fortran
-
-         .. literalinclude:: syntax/v4.5.0/target.f90
-                        :language: fortran
-
-         .. literalinclude:: syntax/v4.5.0/target.clause
-                        :language: fortran
-
-
-
-
-Clauses:
-
-  - device(scalar-integer-expression)
-  - if(scalar-expression)
-    - If the scalar-expression evaluates to false then the target region is executed by the host device in the host data environment.
-  - device(integer-expression)
-    – The value of the integer-expression selects the device when a device other than the default device is desired.
-  - private(list) firstprivate(list)
-    – creates variables with the same name as those in the list on the device. In the case of firstprivate, the value of the variable on the host is copied into the private variable created on the device.
-  - map([map-type:] list)
-    – map-type may be to, from, tofrom, or alloc. The clause defines how the variables in list are moved between the host and the device. 
-  - nowait
-    – The target task is deferred which means the host can run code in parallel to the target region on the device.
-
-
-
-
-.. challenge:: Example: target construct 
+.. challenge:: Syntax
 
    .. tabs::
 
       .. tab:: C/C++
 
-         .. literalinclude:: examples/v4.5.0/Example_target.1.c
-                        :language: c
+             .. code-block:: c
+
+		  #pragma omp target [clauses]
+ 		       structured-block
+
+             .. code-block:: c
+
+	          clause:
+			if([ target:] scalar-expression)
+			device(integer-expression) 
+			private(list)
+			firstprivate(list)	
+			map([map-type:] list)
+			is_device_ptr(list)
+			defaultmap(tofrom:scalar) 
+			nowait
+			depend(dependence-type : list)
+
 
       .. tab:: Fortran
 
-         .. literalinclude:: examples/v4.5.0/Example_target.1.f90
-                        :language: fortran
+             .. code-block:: fortran
+
+		  !$omp target [clauses]
+		        structured-block
+		  !$omp end target
+
+
+             .. code-block:: fortran
+
+	          clause:
+			if([ target:] scalar-expression)
+			device(integer-expression) 
+			private(list)
+			firstprivate(list)	
+			map([map-type:] list)
+			is_device_ptr(list)
+			defaultmap(tofrom:scalar) 
+			nowait
+			depend(dependence-type : list)
 
 
 
-Creating Parallelism on the Target Device
+
+
+
+
+.. challenge:: Example: ``TARGET`` construct 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+             .. code-block:: c
+             	:linenos:
+             	:emphasize-lines: 8
+
+			extern void init(float*, float*, int);
+			extern void output(float*, int);
+			void vec_mult(int N)
+			{
+			   int i;
+			   float p[N], v1[N], v2[N];
+			   init(v1, v2, N);
+			   #pragma omp target
+			   #pragma omp parallel for private(i)
+			   for (i=0; i<N; i++)
+			     p[i] = v1[i] * v2[i];
+			   output(p, N);
+			}
+
+
+      .. tab:: Fortran
+
+             .. code-block:: fortran
+             	:linenos:
+             	:emphasize-lines: 8,13
+
+			subroutine vec_mult(N)
+			   integer ::  i,N
+			   real    ::  p(N), v1(N), v2(N)
+
+
+			   call init(v1, v2, N)
+
+			   !$omp target
+			   !$omp parallel do
+			   do i=1,N
+			      p(i) = v1(i) * v2(i)	
+			   end do
+			   !$omp end target
+
+			   call output(p, N)
+			end subroutine
+		  
+
+
+
+
+Creating parallelism on the target device
 -----------------------------------------
 
-The target construct transfers the control flow to the device is
+The ``TARGET`` construct transfers the control flow to the device is
 sequential and synchronous, and it is because OpenMP separates offload
 and parallelism.  One needs to explicitly create parallel regions on
 the target device to make efficient use of the device(s).
 
-Teams construct
+TEAMS construct
 ---------------
 
-.. typealong:: Syntax
+.. challenge:: Syntax
 
    .. tabs::
 
       .. tab:: C/C++
 
-         .. literalinclude:: syntax/v4.5.0/teams.c
-                        :language: c
+             .. code-block:: c
 
-         .. literalinclude:: syntax/v4.5.0/teams.clause
-                        :language: c
+		  #pragma omp teams [clauses]
+		  	structured-block
+		  
+             .. code-block:: c
+
+	          clause:
+                  num_teams(integer-expression)
+                  thread_limit(integer-expression)
+		  default(shared | none)
+		  private(list)
+      		  firstprivate(list)
+		  shared(list)
+		  reduction(reduction-identifier : list)
+
 
       .. tab:: Fortran
 
-         .. literalinclude:: syntax/v4.5.0/teams.f90
-                        :language: fortran
+             .. code-block:: fortran
 
-         .. literalinclude:: syntax/v4.5.0/teams.clause
-                        :language: fortran
+		  !$omp teams [clauses] 
+		          structured-block
+		  !$omp end teams
+
+             .. code-block:: fortran
+
+	          clause:
+                  num_teams(integer-expression)
+                  thread_limit(integer-expression)
+		  default(shared | none)
+		  private(list)
+      		  firstprivate(list)
+		  shared(list)
+		  reduction(reduction-identifier : list)
 
 
-The teams construct spawns a league of teams.  The maximum number of
-teams is specified by the num_teams clause, Each team executes with
-thread_limit threads Each team in the league starts with one master
-thread and *concurrent (not parallel) execution* on each Streaming
-Multiprocessors Threads in a team can synchronize but no
-synchronization among teams The construct must be “perfectly” nested
-in a target construct
+
+The ``TEAMS`` construct creates a league of one-thread teams where 
+the thread of each team executes *concurrently* and is in its own *contention group*. 
+The number of teams created is implementation defined, but is no more than 
+num_teams if specified in the clause. The maximum number of threads participating in 
+the contention group that each team initiates is implementation defined as well, 
+unless thread_limit is specified in the clause. 
+Threads in a team can synchronize but no synchronization among teams. 
+The ``TEAMS`` construct must be contained in a ``TARGET`` construct, 
+without any other directives, statements or declarations in between.  
 
 
+.. note:: 
 
-Distribute construct
+   A contention group is the set of all threads that are descendants of an initial thread.  
+   An initial thread is never a descendant of another initial thread. 
+
+
+DISTRIBUTE construct
 --------------------
 
-.. typealong:: Syntax
+.. challenge:: Syntax
 
    .. tabs::
 
       .. tab:: C/C++
 
-         .. literalinclude:: syntax/v4.5.0/distribute.c
-                        :language: c
+             .. code-block:: c
 
-         .. literalinclude:: syntax/v4.5.0/distribute.clause
-                        :language: c
+		  #pragma omp distribute [clauses]
+		  	for-loops
+		  
+             .. code-block:: c
+
+	          clause:
+		  private(list)
+      		  firstprivate(list)
+		  lastprivate(list)
+		  collapse(n)
+		  dist_schedule(kind[, chunk_size])
+
 
       .. tab:: Fortran
 
-         .. literalinclude:: syntax/v4.5.0/distribute.f90
-                        :language: fortran
+             .. code-block:: fortran
 
-         .. literalinclude:: syntax/v4.5.0/distribute.clause
-                        :language: fortran
+		  !$omp distribute [clauses] 
+		          do-loops
+		  [!$omp end distribute]
+
+             .. code-block:: fortran
+
+	          clause:
+		  private(list)
+      		  firstprivate(list)
+		  lastprivate(list)
+		  collapse(n)
+		  dist_schedule(kind[, chunk_size])
 
 
-Loop iterations are workshared across the master threads in the teams,
-but no worksharing within the threads in one team No implicit barrier
-at the end of the construct no guarantee about the order the teams
+
+The ``DISTRIBUTE`` construct is a coarsely worksharing construct 
+which distributes the loop iterations across the master threads in the teams,
+but no worksharing within the threads in one team. No implicit barrier
+at the end of the construct and no guarantee about the order the teams
 will execute.
 
-.. challenge:: Example: teams and distribute constructs 
+.. challenge:: Example: ``TEAMS`` and  ``DISTRIBUTE`` constructs  
 
    .. tabs::
 
       .. tab:: C/C++
 
-         .. literalinclude:: examples/v4.5.0/Example_teams.6.c
-                        :language: c
+             .. code-block:: c
+             	:linenos:
+             	:emphasize-lines: 7,8
+
+			extern void init(float*, float*, int);
+			extern void output(float*, int);
+			void vec_mult(float *p, float *v1, float *v2, int N)
+			{
+			   int i;
+			   init(v1, v2, N);
+			   #pragma omp target teams map(to: v1[0:N], v2[:N]) map(from: p[0:N])
+			   #pragma omp distribute parallel for simd
+			   for (i=0; i<N; i++)
+			     p[i] = v1[i] * v2[i];
+			   output(p, N);
+			}
+
 
       .. tab:: Fortran
 
-         .. literalinclude:: examples/v4.5.0/Example_teams.6.f90
-         		:language: fortran   
+             .. code-block:: fortran
+             	:linenos:
+             	:emphasize-lines: 5,6,10
+
+			subroutine vec_mult(p, v1, v2, N)
+			   integer ::  i
+			   real    ::  p(N), v1(N), v2(N)
+			   call init(v1, v2, N)
+			   !$omp target teams map(to: v1, v2) map(from: p)
+			   !$omp distribute parallel do simd
+			   do i=1,N
+			      p(i) = v1(i) * v2(i)	
+			   end do
+			   !$omp end target teams
+
+			   call output(p, N)
+			end subroutine
 
 
 
@@ -219,19 +350,66 @@ It is convenient to use the composite construct
   - possible to reach good performance without composite directives
 
 
-
-.. typealong:: Syntax
+.. challenge:: Syntax
 
    .. tabs::
 
       .. tab:: C/C++
 
-         .. literalinclude:: syntax/v4.5.0/composite.c
-                        :language: c
+             .. code-block:: c
+
+		  #pragma omp target teams distribute parallel for simd [clauses]
+		  	for-loops
+		  
+
 
       .. tab:: Fortran
 
-         .. literalinclude:: syntax/v4.5.0/composite.f90
+             .. code-block:: fortran
+
+		  !$omp target teams distribute parallel do simd [clauses]
+		          do-loops
+		  [!$omp end target teams distribute parallel do simd]
+
+
+
+
+.. exercise:: Exercise: Offloading
+
+   We will start from the serial version of the heat diffusion and step by step
+   add the directives for offloading and parallelism on the target device.  Compare 
+   the performance to understand the effects of different directives. We will 
+   focus on the core evoluton operation only for now, i.e. subroutine evolve 
+   in the file core.cpp or core.F90.  
+
+   step 1: adding the ``TARGET`` construct 
+
+   step 2: adding the ``TARGET TEAMS`` construct
+
+   step 3: adding the ``TARGET TEAMS DISTRIBUTE`` construct
+
+   step 4: adding the ``TARGET TEAMS DISTRIBUTE PARALLEL FOR/DO`` construct
+
+   Use a small number of iterations, e.g. ./heat_serial 800 800 10, 
+   otherwise it may take a long time to finish.
+
+   The exercise is under /content/exercise/offloading
+
+.. solution::
+
+   .. tabs::
+
+      .. tab:: C++
+
+         .. literalinclude:: exercise/solution/offloading/core.cpp
+                        :language: cpp
+			:emphasize-lines: 25-26
+
+
+      .. tab:: Fortran
+
+         .. literalinclude:: exercise/solution/offloading/fortran/core.F90
                         :language: fortran
+                        :emphasize-lines: 35,45
 
 
