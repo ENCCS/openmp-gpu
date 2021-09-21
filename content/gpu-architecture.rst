@@ -12,7 +12,6 @@ Introduction to GPU architecture
 
    - Understand GPU architecture (resources available to programmer) 
    - Understand execution model 
-   - Understand 
 
 .. prereq::
 
@@ -136,25 +135,31 @@ Heterogeneous Programming
 .. figure:: img/heteprogra.jpeg
    :align: center
 
-CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, controlling the execution workflow.  The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. GPUs run tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management. The device code is executed by doing calls to functions (kernels) written specifically to take advantage of the GPU . The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
+CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, controlling the execution workflow.  The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. GPUs run tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management. The device code is executed by doing calls to functions (kernels) written specifically to take advantage of the GPU. The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
 
 Thread Hierarchy
 ~~~~~~~~~~~~~~~~
+
+In order to take advantage of the accelerators it is needed to use parallelism. All loops in which the individual iterations are independent of each other can be parallelized. When a kernel is called tens of thousands of threads are created. All threads execute the given kernel with each thread executing the same inttructions on different data (*S*ingle *I*instruction *M*ultiple *D*ata parallel programming model). These threads are grouped in blocks which are assgined to the SMs. The blocks can not be splitted among the SMs, but in a SM several blocks can be active at a moment. Threads in a block can interact with each other, they can exchange data via the so called shared memory and they can be synchronized. The blocks can not interact with other blocks.
+
 .. figure:: img/ThreadExecution.jpeg
    :align: center
 
-Parallelism is exposed via .... With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly. This makes the data management and its access pattern is essential on the GPU. Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly. This allows to hide the memory operations: while some threads wait, others can compute. 
+With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly. This makes the data management and its access pattern is essential on the GPU. Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly. This allows to hide the memory operations: while some threads wait, others can compute. 
 
 Automatic Scalability
 ~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png
    :align: center
 
+This programming model automatically implies scalability. Because the blocks are independent of each other they can be executed on any order. A GPU with more SM will be able to run more blocks in the same time.
 Thread Scheduling. SIMT
 ~~~~~~~~~~~~~~~~~~~~~~~
+A very important concept in GPU programming model is the warp (in CUDA) or wave (in HIP). 
 .. figure:: img/Loom.jpeg
    :align: center
 
+A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, whil ein HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (*S*ingle *I*struction *M*ultiple *T*hreads parallel programming model). This means that If an "if" statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave).
 - Warps (waves) of 32 (64) parallel threads
 - Consecutive, increasing thread IDs
 - All executing one common instruction at a time
