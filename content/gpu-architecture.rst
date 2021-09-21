@@ -98,7 +98,7 @@ Accelerator model
 .. figure:: img/HardwareReview.png
    :align: center
 
-Accelerators are a separate main circuit board with the processor, memory, power management, etc., but they can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. CPU acts as a main processor, controlling the execution workflow. This is reflected in the programming model. 
+Accelerators are a separate main circuit board with the processor, memory, power management, etc., but they can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
 
 GPU Autopsy. Volta GPU
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -136,14 +136,14 @@ Heterogeneous Programming
 .. figure:: img/heteprogra.jpeg
    :align: center
 
-CPU (host) and GPU (device) codes are mixed. The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. The device code is executed by doing calls to functions written specifically to take advantage of the GPU (kernels). The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
+CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, controlling the execution workflow.  The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. GPUs run tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management. The device code is executed by doing calls to functions (kernels) written specifically to take advantage of the GPU . The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
 
 Thread Hierarchy
 ~~~~~~~~~~~~~~~~
 .. figure:: img/ThreadExecution.jpeg
    :align: center
 
-Parallelism is exposed via ....
+Parallelism is exposed via .... With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly. This makes the data management and its access pattern is essential on the GPU. Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly. This allows to hide the memory operations: while some threads wait, others can compute. 
 
 Automatic Scalability
 ~~~~~~~~~~~~~~~~~~~~~
@@ -264,7 +264,16 @@ Overlapping Computations and Data Movements
 
 - A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
 - Operations within a stream are guaranteed to execute in the prescribed order
-- Operations in different streams may run concurrently or interleaved
+- Operations in different streams may run concurrently or interleaved.
+
+Summary
+-------
+
+- GPUs are highly parallel devices that can execute certain parts of the progrem in many parallel threads.
+
+- CPU controls the works flow and makes all the allocations and data transfers.
+
+- In order to use the GPU efficiency, one has to split their task in many subtasks that can run simulteneously.
 
 Second heading
 --------------
