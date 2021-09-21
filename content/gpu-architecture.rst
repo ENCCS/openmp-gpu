@@ -46,23 +46,32 @@ Achieving performance has been based on two main strategies over the years:
 
 Why use GPUs?
 ~~~~~~~~~~~~~
+
+The Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator. 
+
 .. figure:: img/comparison.png
    :align: center
    
-The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
+   A growth in accelerator performance over the years in comparison to Intel CPU performance. 
+   The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
 
 What is different?
 ~~~~~~~~~~~~~~~~~~
+
+CPUs and GPUs were designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing many thousands of them in parallel. GPUs were initially developed for highly-parallel task of graphic processing and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
+memory access latencies, both of which are expensive in terms of transistors.
+
+
+
 .. figure:: img/gpu_vs_cpu.png
    :align: center
-   
 
-The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
+    A comparison of the CPU and GPU architecture.
+    CPU (left) has complex core structure and pack several cores on a single chip.
+    GPU cores are very simple in comparison, they also share data and control between each other.
+    This allows to pack more cores on a single chip, thus achieving very hich compute density.
 
-Different Philosophies
-~~~~~~~~~~~~~~~~~~~~~~
-CPUs and GPUs  are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel. The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
-memory access latencies, both of which are expensive in terms of transistors.
+
 
 .. list-table::  
    :widths: 100 100
@@ -84,20 +93,44 @@ memory access latencies, both of which are expensive in terms of transistors.
 GPU Programming Model
 ---------------------
 
-Heterogeneous CPU-GPU System
+Accelerator model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/HardwareReview.png
    :align: center
 
-The GPUs (devices) can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
+Accelerators are a separate main circuit board with the processor, memory, power management, etc., but they can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. CPU acts as a main processor, controlling the execution workflow. This is reflected in the programming model. 
 
-GPU Anatomy. A100
-~~~~~~~~~~~~~~~~~
-.. figure:: img/nvidia_block_diagram.jpeg
-   :align: center
+GPU Autopsy. Volta GPU
+~~~~~~~~~~~~~~~~~~~~~~
 
-GPUs are ...
+.. figure:: img/volta-architecture.png
+    :align: center
 
+    A scheme of NVIDIA Volta GPU.
+
+NVIDIA Volta streaming multiprocessor (SM):
+
+- 64 single precision cores
+
+- 32 double precision cores
+
+- 64 integer cores
+
+- 8 Tensore cores
+
+- 128 KB memory block for L1 and shared memory
+
+  - 0 - 96 KB can be set to user managed shared memory
+
+  - The rest is L1
+
+- 65536 registers - enables the GPU to run a very large number of threads
+
+.. figure:: img/volta-sm-architecture.png
+    :align: center
+
+    A scheme of NVIDIA Volta streaming multiprocessor.
+    
 Heterogeneous Programming
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/heteprogra.jpeg
