@@ -4,43 +4,74 @@ Introduction to GPU architecture
 
 .. questions::
 
+   - Why use GPUs?
    - What is different about GPUs?
-   - TODO
+   - What is the programming model?
 
 .. objectives::
 
-   - Understand TODO
-   - Understand TODO
-   - Understand 
+   - Understand GPU architecture (resources available to programmer) 
+   - Understand execution model 
    - Understand 
 
 .. prereq::
 
-   1. TODO
-   2. TODO
+   1. Basic C or FORTRAN
+   2. Basic knowledge about processes and threads
 
 
-Introduction
-------------
+
+Moore's law
+-----------
+
+The number of transistors in a dense integrated circuit doubles about every two years.
+More transistors means smaller size of a single element, so higher core frequency can be achieved.
+However, power consumption scales as frequency in third power, so the growth in the core frequency has slowed down significantly.
+Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD, branch prediction, etc.
+
+.. figure:: img/microprocessor-trend-data.png
+   :align: center
+
+   The evolution of microprocessors.
+   The number of transistors per chip increase every 2 years or so.
+   However it can no longer be explored by the core frequency due to power consumption limits.
+   Before 2000, the increase in the single core clock frequency was the major source of the increase in the performance.
+   Mid 2000 mark a transition towards multi-core processors.
+
+Achieving performance has been based on two main strategies over the years:
+
+    - Increase the single processor performance: 
+
+    - More recently, increase the number of physical cores.
+
 Why use GPUs?
 ~~~~~~~~~~~~~
+
+The Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator. 
+
 .. figure:: img/comparison.png
    :align: center
    
-The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
+   A growth in accelerator performance over the years in comparison to Intel CPU performance. 
+   The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.
 
 What is different?
 ~~~~~~~~~~~~~~~~~~
+
+CPUs and GPUs were designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing many thousands of them in parallel. GPUs were initially developed for highly-parallel task of graphic processing and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
+memory access latencies, both of which are expensive in terms of transistors.
+
+
+
 .. figure:: img/gpu_vs_cpu.png
    :align: center
-   
 
-The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.
+    A comparison of the CPU and GPU architecture.
+    CPU (left) has complex core structure and pack several cores on a single chip.
+    GPU cores are very simple in comparison, they also share data and control between each other.
+    This allows to pack more cores on a single chip, thus achieving very hich compute density.
 
-Different Philosophies
-~~~~~~~~~~~~~~~~~~~~~~
-CPUs and GPUs  are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel. The GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
-memory access latencies, both of which are expensive in terms of transistors.
+
 
 .. list-table::  
    :widths: 100 100
@@ -62,33 +93,57 @@ memory access latencies, both of which are expensive in terms of transistors.
 GPU Programming Model
 ---------------------
 
-Heterogeneous CPU-GPU System
+Accelerator model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/HardwareReview.png
    :align: center
 
-The GPUs (devices) can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
+Accelerators are a separate main circuit board with the processor, memory, power management, etc., but they can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model. 
 
-GPU Anatomy. A100
-~~~~~~~~~~~~~~~~~
-.. figure:: img/nvidia_block_diagram.jpeg
-   :align: center
+GPU Autopsy. Volta GPU
+~~~~~~~~~~~~~~~~~~~~~~
 
-GPUs are ...
+.. figure:: img/volta-architecture.png
+    :align: center
 
+    A scheme of NVIDIA Volta GPU.
+
+NVIDIA Volta streaming multiprocessor (SM):
+
+- 64 single precision cores
+
+- 32 double precision cores
+
+- 64 integer cores
+
+- 8 Tensore cores
+
+- 128 KB memory block for L1 and shared memory
+
+  - 0 - 96 KB can be set to user managed shared memory
+
+  - The rest is L1
+
+- 65536 registers - enables the GPU to run a very large number of threads
+
+.. figure:: img/volta-sm-architecture.png
+    :align: center
+
+    A scheme of NVIDIA Volta streaming multiprocessor.
+    
 Heterogeneous Programming
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/heteprogra.jpeg
    :align: center
 
-CPU (host) and GPU (device) codes are mixed. The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. The device code is executed by doing calls to functions written specifically to take advantage of the GPU (kernels). The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
+CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, controlling the execution workflow.  The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. GPUs run tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management. The device code is executed by doing calls to functions (kernels) written specifically to take advantage of the GPU . The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially. 
 
 Thread Hierarchy
 ~~~~~~~~~~~~~~~~
 .. figure:: img/ThreadExecution.jpeg
    :align: center
 
-Parallelism is exposed via ....
+Parallelism is exposed via .... With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly. This makes the data management and its access pattern is essential on the GPU. Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly. This allows to hide the memory operations: while some threads wait, others can compute. 
 
 Automatic Scalability
 ~~~~~~~~~~~~~~~~~~~~~
@@ -161,8 +216,6 @@ CUDA C/HIP code example
        }
    }
 
-Memory Access 
--------------
 
 Memory types
 ~~~~~~~~~~~~
@@ -211,7 +264,16 @@ Overlapping Computations and Data Movements
 
 - A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
 - Operations within a stream are guaranteed to execute in the prescribed order
-- Operations in different streams may run concurrently or interleaved
+- Operations in different streams may run concurrently or interleaved.
+
+Summary
+-------
+
+- GPUs are highly parallel devices that can execute certain parts of the progrem in many parallel threads.
+
+- CPU controls the works flow and makes all the allocations and data transfers.
+
+- In order to use the GPU efficiency, one has to split their task in many subtasks that can run simulteneously.
 
 Second heading
 --------------
