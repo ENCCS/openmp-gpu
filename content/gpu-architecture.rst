@@ -4,21 +4,45 @@ Introduction to GPU architecture
 
 .. questions::
 
+   - Why use GPUs?
    - What is different about GPUs?
-   - TODO
+   - What is the programming model?
 
 .. objectives::
 
-   - Understand TODO
-   - Understand TODO
-   - Understand 
+   - Understand GPU architecture (resources available to programmer) 
+   - Understand execution model 
    - Understand 
 
 .. prereq::
 
-   1. TODO
-   2. TODO
+   1. Basic C or FORTRAN
+   2. Basic knowledge about processes and threads
 
+
+
+Moore's law
+-----------
+
+The number of transistors in a dense integrated circuit doubles about every two years.
+More transistors means smaller size of a single element, so higher core frequency can be achieved.
+However, power consumption scales as frequency in third power, so the growth in the core frequency has slowed down significantly.
+Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD, branch prediction, etc.
+
+.. figure:: img/microprocessor-trend-data.png
+   :align: center
+
+   The evolution of microprocessors.
+   The number of transistors per chip increase every 2 years or so.
+   However it can no longer be explored by the core frequency due to power consumption limits.
+   Before 2000, the increase in the single core clock frequency was the major source of the increase in the performance.
+   Mid 2000 mark a transition towards multi-core processors.
+
+Achieving performance has been based on two main strategies over the years:
+
+    - Increase the single processor performance: 
+
+    - More recently, increase the number of physical cores.
 
 Why use GPUs?
 ~~~~~~~~~~~~~
