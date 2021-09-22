@@ -140,7 +140,7 @@ CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, contr
 Thread Hierarchy
 ~~~~~~~~~~~~~~~~
 
-In order to take advantage of the accelerators it is needed to use parallelism. All loops in which the individual iterations are independent of each other can be parallelized. When a kernel is called tens of thousands of threads are created. All threads execute the given kernel with each thread executing the same inttructions on different data (*S*ingle *I*instruction *M*ultiple *D*ata parallel programming model). These threads are grouped in blocks which are assgined to the SMs. The blocks can not be splitted among the SMs, but in a SM several blocks can be active at a moment. Threads in a block can interact with each other, they can exchange data via the so called shared memory and they can be synchronized. The blocks can not interact with other blocks.
+In order to take advantage of the accelerators it is needed to use parallelism. All loops in which the individual iterations are independent of each other can be parallelized. When a kernel is called tens of thousands of threads are created. All threads execute the given kernel with each thread executing the same instructions on different data (*S*ingle *I*instruction *M*ultiple *D*ata parallel programming model). These threads are grouped in blocks which are assgined to the SMs. The blocks can not be splitted among the SMs, but in a SM several blocks can be active at a moment. Threads in a block can interact with each other, they can exchange data via the so called shared memory and they can be synchronized. The blocks can not interact with other blocks.
 
 .. figure:: img/ThreadExecution.jpeg
    :align: center
@@ -159,12 +159,7 @@ A very important concept in GPU programming model is the warp (in CUDA) or wave 
 .. figure:: img/Loom.jpeg
    :align: center
 
-A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, whil ein HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (*S*ingle *I*struction *M*ultiple *T*hreads parallel programming model). This means that If an "if" statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave).
-- Warps (waves) of 32 (64) parallel threads
-- Consecutive, increasing thread IDs
-- All executing one common instruction at a time
-- Conditional branches are executed serially
-- Memory accesses are per warp (wave)
+A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, whil ein HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (*S*ingle *I*struction *M*ultiple *T*hreads parallel programming model). This means that If an "if" statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave). In order to achieve performance the threads in a warp (wave) have to access memory locations adjacent to each other. 
 
 CUDA C/HIP code example
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -227,16 +222,18 @@ Memory types
 .. figure:: img/memsch.png
    :align: center
 
-Understanding the basic memory architecture is criticall in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the Global Memory.  This is accessible by all active threads. 
-- *Registers*: The fastest form of memory. Accessible only by the thread
-- *Shared Memory*: Almost as fast as a registers. Visible by any thread within blocks
-- **Global Memory**: 150x slower then registers/shared memory. Accessible from any thread or from the host
-- Memory with special access pattern. Heavily cached on chip.
+Understanding the basic memory architecture is criticall in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the **Global Memory**.  This is accessible by all active threads. Each thread is allocated a set of *Registers*, and it cannot access registers that are not parts of that set.  A kernel generally stores frequently used variables that are private to each thread in registers. The cost of accessing variables from registers is less than that required to access variables from the global memory. There is a maximum of registers available for each thread, if the limit is exceed the values will be spilled. The *Shared Memory* is another fast type of memory. All threads of a block can access its shared memory and it can  can be used for inter-thread communication or as user controled cached. In addition to these,  memories with special access pattern (*Costant*, *Texture*, *Surface*) are also provided. 
+
+Advance topics
+--------------
 
 Global Memory Access
 ~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/coalesced.png
    :align: center
+
+Grouping of threads into warps is not only relevant to computation, but also to the global memory accesses.
+
 - Memory transactions are done in continuous blocks of 32B, 64B, or 128B
 - Address of the first element is aligned to 16x the size of the first element
 
@@ -271,6 +268,15 @@ Overlapping Computations and Data Movements
 - Operations within a stream are guaranteed to execute in the prescribed order
 - Operations in different streams may run concurrently or interleaved.
 
+
+Writing Programs for GPUs
+-------------------------
+In order to take advantage of the GPUs computing power the programs have to be written swpecifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
+
+1. Frameworks like Kokkos or AMReX, to automate the parallelization
+2. Directive based programming like **OpenMP* or OpenACC, where the existing serial code can be paralallized by adding small code snippets that look like comments 
+3. native GPU programming CUDA, HIP, or OpenCL
+
 Summary
 -------
 
@@ -278,65 +284,10 @@ Summary
 
 - CPU controls the works flow and makes all the allocations and data transfers.
 
-- In order to use the GPU efficiency, one has to split their task in many subtasks that can run simulteneously.
-
-Second heading
---------------
-
-.. exercise::
-
-   TODO get the students to think about the content and answer a Zoom quiz
-
-.. solution::
-
-   Hide the answer and reasoning in here
-
-Some source code
-----------------
-
-Sometimes we need to look at code, which can be in the webpage and optionally
-you can pull out only some lines, or highlight others. Make sure both C++ and Fortran examples exist and work.
-
-.. typealong:: The field data structure
-
-   .. tabs::
-
-      .. tab:: C++
-
-         .. literalinclude:: code-samples/serial/heat.h
-                        :language: cpp
-                        :lines: 7-17
-                                
-      .. tab:: Fortran
-
-         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
-                        :language: fortran
-                        :lines: 9-15
-
-Building the code
------------------
-
-If there's terminal output to discuss, show something like::
-
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c main.cpp -o main.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c core.cpp -o core.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c setup.cpp -o setup.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c utilities.cpp -o utilities.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c io.cpp -o io.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common main.o core.o setup.o utilities.o io.o ../common/pngwriter.o -o heat_serial  -lpng
-
-
-Running the code
-----------------
-
-To show a sample command line, use this approach
-
-.. code-block:: bash
-
-   ./heat_serial 800 800 1000
-
+- In order to use the GPU efficiency, one has to split their the problem  in many parts that can run simultenuously.
 
 .. keypoints::
 
-   - TODO summarize the learning outcome
-   - TODO
+   - GPUs can provide much higher performance than CPU
+   - SIMD programming model
+   - Directive bases programming is possible
