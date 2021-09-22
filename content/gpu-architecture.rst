@@ -289,5 +289,6 @@ Summary
 .. keypoints::
 
    - GPUs can provide much higher performance than CPU
-   - SIMD programming model
+   - SIMD & SIMT programming model
    - Directive bases programming is possible
+   - Various resources can be used to accelerate the code
