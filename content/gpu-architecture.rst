@@ -242,6 +242,68 @@ Shared Memory Access
 
 The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the lcoal memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.
 
+Example of a code using shared memory to perform transpose of a two dimensional array. 
+
+.. code-block:: C++
+
+   __global__ void transpose_kernel_naive(float *in, float *out, int width, int height) 
+   {
+   int x_index = blockIdx.x * tile_dim + threadIdx.x;
+   int y_index = blockIdx.y * tile_dim + threadIdx.y;
+
+   int in_index = y_index * width + x_index;
+   int out_index = x_index * height + y_index;
+
+   out[out_index] = in[in_index]; //the writing is uncoalesced. very inefficient
+   }
+   
+   const static int tile_dim=32; // for maximum perfomarnce this should be equal to warp (wave) size ?
+   __global__ void transpose_lds_kernel(float *in, float *out, int width,
+                                     int height) {
+   __shared__ float tile[tile_dim][tile_dim];
+
+   int x_tile_index = blockIdx.x * tile_dim;
+   int y_tile_index = blockIdx.y * tile_dim;
+
+   int in_index = (y_tile_index + threadIdx.y) * width  + (x_tile_index + threadIdx.x);
+   int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
+
+   tile[threadIdx.y][threadIdx.x] = in[in_index];
+
+   __syncthreads();
+
+   out[out_index] = tile[threadIdx.x][threadIdx.y];
+   }
+
+Using shared memory the programmer ensures that both read and writes to the global arrays are coalesced. 
+
+In other situations like the n-body problem type of interaction the shared memory can be used to avoid multiple loads of the same data from the memory:
+
+.. code-block:: C++
+   __global__ void
+   calculate_forces(void *devX, void *devA)
+   {
+      extern __shared__ float4[] shPosition;
+      float4 *globalX = (float4 *)devX; float4 *globalA = (float4 *)devA;
+      float4 myPosition;
+      int i, tile;
+      float3 acc = {0.0f, 0.0f, 0.0f};
+      int gtid = blockIdx.x * blockDim.x + threadIdx.x;
+      myPosition = globalX[gtid];
+      for (i = 0, tile = 0; i < N; i += p, tile++) {
+             int idx = tile * blockDim.x + threadIdx.x;
+             shPosition[threadIdx.x] = globalX[idx];
+             __syncthreads();
+            for (i = 0; i < blockDim.x; i++) {
+               accel = bodyBodyInteraction(myPosition, shPosition[i], accel);
+            }
+            __syncthreads();
+      }
+     // Save the result in global memory for the integration step.
+     float4 acc4 = {acc.x, acc.y, acc.z, 0.0f};
+     globalA[gtid] = acc4;
+   }
+
 Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
    
