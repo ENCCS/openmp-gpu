@@ -302,12 +302,18 @@ Without Unified Memory there are two sets of points (one for host and one for de
 
 Streams
 -------
+A *stream* in CUDA is a sequence of operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most commong use of non-default streams is for overlapping computations and data movements. 
 
 Overlapping Computations and Data Movements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that teh total amount of floping operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel executio we can image 3 scenarios like in the figure below.
+
+
 .. figure:: img/Timeline.png
    :align: center
-
+   
+1. All data is copied in one transfer to GPU. Next it is processed doing 2 kernels calls. In the last step the results are copied to the host, again in one transfer.
+2. Using for example 3 streams with 2 copy engines available. The first stream does transfer *1/3* of the data, then does the compution on part and then copies the results back to the host. However in this case when the first stream starts the computation the second *1/3* can now be transfered to the GPU. Next when the transfer on the second stream is completed it can proceed to the first calculcation. Meanwhile also in the first stream
 - A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
 - Operations within a stream are guaranteed to execute in the prescribed order
 - Operations in different streams may run concurrently or interleaved.
