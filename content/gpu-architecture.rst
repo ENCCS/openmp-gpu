@@ -152,14 +152,15 @@ Automatic Scalability
 .. figure:: img/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png
    :align: center
 
-This programming model automatically implies scalability. Because the blocks are independent of each other they can be executed on any order. A GPU with more SM will be able to run more blocks in the same time.
+This programming model automatically implies automatic scalability. Because the blocks are independent of each other they can be executed on any order. A GPU with more SM will be able to run more blocks in the same time.
+
 Thread Scheduling. SIMT
 ~~~~~~~~~~~~~~~~~~~~~~~
 A very important concept in GPU programming model is the warp (in CUDA) or wave (in HIP). 
 .. figure:: img/Loom.jpeg
    :align: center
 
-A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, whil ein HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (*S*ingle *I*struction *M*ultiple *T*hreads parallel programming model). This means that If an "if" statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave). In order to achieve performance the threads in a warp (wave) have to access memory locations adjacent to each other. 
+A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, while in HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (*S*ingle *I*struction *M*ultiple *T*hreads parallel programming model). This means that If an "if" statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave). In order to achieve performance the threads in a warp (wave) have to access memory locations adjacent to each other. 
 
 CUDA C/HIP code example
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,29 +233,72 @@ Global Memory Access
 .. figure:: img/coalesced.png
    :align: center
 
-Grouping of threads into warps is not only relevant to computation, but also to the global memory accesses.
-
-- Memory transactions are done in continuous blocks of 32B, 64B, or 128B
-- Address of the first element is aligned to 16x the size of the first element
-
+Grouping of threads into warps is not only relevant to computation, but also to the global memory accesses. Memory transactions are done per warp in continuous blocks of of 32B, 64B, or 128B.  In addition these memory transactions must be naturally aligned. Only the 32-, 64-, or 128-byte segments of device memory that are aligned to their size (i.e., whose first address is a multiple of their size) can be read or written by memory transactions. Not fulfilling these requirements will result in extra memory transactions. 
 
 Shared Memory Access
 ~~~~~~~~~~~~~~~~~~~~
 .. figure:: img/shared_mem.png
    :align: center
 
-- Shared memory is divided into banks (allowing only one access per cycle)
-- Parallel access: multiple addresses accessed over multiple banks
-- Serial access: multiple addresses in the same bank
-- Broadcast access: a single address read in a single bank (by the whole warp)
+The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the lcoal memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.
 
 Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
    
-- Data movement appears more transparent to the application
-- Creates a pool of managed memory
-- Each allocation is accessible on both the CPU and GPU with the same pointer
-- System automatically migrates data between the host and device, as needed
+The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explcit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. Below there are CUDA examples codes for without and with unified memory access.
+
+
+
+
+.. typealong:: Vector addition on GPU
+
+   .. tabs::
+
+      .. tab:: No UM
+         
+         .. code-block:: C++
+             
+            ...
+
+            __global__ void AplusB(int *ret, int a, int b) {
+               ret[threadIdx.x] = a + b + threadIdx.x;
+            }
+            int main() {
+            int *ret;
+            cudaMalloc(&ret, 1000 * sizeof(int));
+            AplusB<<< 1, 1000 >>>(ret, 10, 100);
+            int *host_ret = (int *)malloc(1000 * sizeof(int));
+            cudaMemcpy(host_ret, ret, 1000 * sizeof(int), cudaMemcpyDefault);
+            for(int i = 0; i < 1000; i++)
+                   printf("%d: A+B = %d\n", i, host_ret[i]);
+            free(host_ret);
+            cudaFree(ret);
+            return 0;
+            }
+                                
+      .. tab:: with UM
+         
+         .. code-block:: C++
+            
+            ...
+
+            __global__ void AplusB(int *ret, int a, int b) {
+               ret[threadIdx.x] = a + b + threadIdx.x;
+            }
+            int main() {
+            int *ret;
+            cudaMallocManaged(&ret, 1000 * sizeof(int));
+            AplusB<<< 1, 1000 >>>(ret, 10, 100);
+            cudaDeviceSynchronize();
+            for(int i = 0; i < 1000; i++)
+            printf("%d: A+B = %d\n", i, ret[i]);
+            cudaFree(ret);
+            return 0;
+           }
+
+
+Without Unified Memory there are two sets of points (one for host and one for device memory space) and if the data is initialized on the host it requires a copy operation. Also in the case of the no UM the kernel calling the kernel with the host pointers would results in the code failing. 
+
 
 Streams
 -------
@@ -274,8 +318,8 @@ Writing Programs for GPUs
 In order to take advantage of the GPUs computing power the programs have to be written swpecifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
 
 1. Frameworks like Kokkos or AMReX, to automate the parallelization
-2. Directive based programming like **OpenMP* or OpenACC, where the existing serial code can be paralallized by adding small code snippets that look like comments 
-3. native GPU programming CUDA, HIP, or OpenCL
+2. Directive based programming like **OpenMP* or OpenACC, where the existing serial code can be parallelized by adding small code snippets that look like comments 
+3. native GPU programming CUDA, HIP, or OpenCL, SYCL 
 
 Summary
 -------
