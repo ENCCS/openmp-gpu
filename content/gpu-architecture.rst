@@ -309,7 +309,7 @@ Overlapping Computations and Data Movements
 The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that teh total amount of floping operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel executio we can image 3 scenarios like in the figure below.
 
 
-.. figure:: img/Timeline.png
+.. figure:: img/C2050Timeline.png
    :align: center
    
 1. All data is copied in one transfer to GPU. Next it is processed doing 2 kernels calls. In the last step the results are copied to the host, again in one transfer.
