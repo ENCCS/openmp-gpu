@@ -4,25 +4,56 @@ Why OpenMP offloading?
 .. questions::
 
    - When and why should I use OpenMP offloading in my code?
-   - TODO
 
 .. objectives::
 
-   - Understand TODO
-   - Understand TODO
-   - Understand 
-   - Understand 
+   - Understand shared parallel model
+   - Understand program execution model
+   - Understand basic constructs 
 
 .. prereq::
 
-   1. TODO
-   2. TODO
+   1. Basic C or FORTRAN
 
 
-First heading
--------------
+Computing in parallel
+~~~~~~~~~~~~~~~~~~~~~
 
-Some text
+The underlying idea of parallel computing is to split a computational problem into smaller subtasks. Many subpsubtasks can then be solved *simultaneously* by multiple processing units. 
+
+.. figure:: img/compp.png
+   :align: center
+   
+   Computing in parallel.
+
+How a problem is split into smaller subtasks depends fully on the problem. There are various paradigms and programming approaches how to do this. 
+
+Distributed- vs. Shared-Memory Architecture
+-------------------------------------------
+
+Most of computing problems are not trivially parallelizable, which means that the subtasks need to have access from time to time to some of the results computed by other subtasks. The way subtasks exchange needed information depends on the available hardware.
+
+.. figure:: img/distributed_vs_shared.png
+   :align: center
+   
+   Distributed- vs shared-memory parallel computing.
+
+In a distributed memory environment each computing unit operates independently from the others. It has its own memory and it  **cannot** access the memory in other nodes. The communication is done via network and each computing unit runs a separate copy of the operating system. In a shared memory machine all computing units have access to the memory and can read or modify the variables within.
+
+Processes and threads
+---------------------
+
+The type of environment (distributed- or shared-memory) determines the programming model. There are two types of parallelism possible, process based and thread based. 
+
+.. figure:: img/processes-threads.svg
+   :align: center
+
+For distributed memory machines a process basedparallel programming model is employed. The processes are independent execution units which have their *own memory* address spaces. They are created when the parallel program is started and they are only killed at the end. The communication between them is done explicitly via message passing like the MPI.
+
+On the shared memoroy architectures it is possible to use a thread based parallelism.  The threads are light execution units and can be created and destryed at a relatively small cost. The threads have their own state information but they *share* the *same memory* adress space. When needed the communication is done though the shared memory. 
+
+OpenMP
+~~~~~~
 
 Second heading
 --------------
