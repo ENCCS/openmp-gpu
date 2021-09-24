@@ -388,7 +388,8 @@ Writing Programs for GPUs
 In order to take advantage of the GPUs computing power the programs have to be written swpecifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
 
 1. Frameworks like Kokkos or AMReX, to automate the parallelization
-2. Directive based programming like **OpenMP** or OpenACC, where the existing serial code can be parallelized by adding small code snippets that look like comments 
+2. Directive based programming like **OpenMP** or OpenACC,  the existing serial code is annotated to pinpoint accelerator-offloadable regions
+
 3. native GPU programming CUDA, HIP, or OpenCL, SYCL 
 
 Summary
