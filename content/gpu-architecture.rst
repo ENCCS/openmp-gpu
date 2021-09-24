@@ -149,14 +149,18 @@ With many cores trying to access the memory simultaneously and with little cache
 
 Automatic Scalability
 ~~~~~~~~~~~~~~~~~~~~~
+
 .. figure:: img/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png
    :align: center
 
 This programming model automatically implies automatic scalability. Because the blocks are independent of each other they can be executed on any order. A GPU with more SM will be able to run more blocks in the same time.
 
+
 Thread Scheduling. SIMT
 ~~~~~~~~~~~~~~~~~~~~~~~
+
 A very important concept in GPU programming model is the warp (in CUDA) or wave (in HIP). 
+
 .. figure:: img/Loom.jpeg
    :align: center
 
@@ -220,6 +224,7 @@ CUDA C/HIP code example
 
 Memory types
 ~~~~~~~~~~~~
+
 .. figure:: img/memsch.png
    :align: center
 
@@ -230,6 +235,7 @@ Advance topics
 
 Global Memory Access
 ~~~~~~~~~~~~~~~~~~~~
+
 .. figure:: img/coalesced.png
    :align: center
 
@@ -280,6 +286,7 @@ Using shared memory the programmer ensures that both read and writes to the glob
 In other situations like the n-body problem type of interaction the shared memory can be used to avoid multiple loads of the same data from the memory:
 
 .. code-block:: C++
+
    __global__ void
    calculate_forces(void *devX, void *devA)
    {
@@ -308,8 +315,6 @@ Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
    
 The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explcit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. Below there are CUDA examples codes for without and with unified memory access.
-
-
 
 
 .. typealong:: Vector addition on GPU
@@ -364,21 +369,18 @@ Without Unified Memory there are two sets of points (one for host and one for de
 
 Streams
 -------
-A *stream* in CUDA is a sequence of operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most commong use of non-default streams is for overlapping computations and data movements. 
+
+A *stream* in CUDA is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most commong use of non-default streams is for overlapping computations and data movements. 
 
 Overlapping Computations and Data Movements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that teh total amount of floping operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel executio we can image 3 scenarios like in the figure below.
+The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that teh total amount of floping operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel execution we can image two scenarios like in the figure below.
 
 
 .. figure:: img/C2050Timeline.png
    :align: center
    
-1. All data is copied in one transfer to GPU. Next it is processed doing 2 kernels calls. In the last step the results are copied to the host, again in one transfer.
-2. Using for example 3 streams with 2 copy engines available. The first stream does transfer *1/3* of the data, then does the compution on part and then copies the results back to the host. However in this case when the first stream starts the computation the second *1/3* can now be transfered to the GPU. Next when the transfer on the second stream is completed it can proceed to the first calculcation. Meanwhile also in the first stream
-- A sequence of asynchronous GPU operations that execute on a device in the order issued by the host code.
-- Operations within a stream are guaranteed to execute in the prescribed order
-- Operations in different streams may run concurrently or interleaved.
+In the first one all data is copied in one transfer to GPU. Next it is processed doing, then in the last step the results are copied to the host, again in one transfer. In the second one the data is splitteed in 4 parts. Each part is transfered from the host to the deiviced, processed and then the results are transfered back to the host. We can see that there is ovelap between copying from host to device, execution, the copying  from the device to the host. 
 
 
 Writing Programs for GPUs
