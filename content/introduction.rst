@@ -85,7 +85,7 @@ Parallel regions and data sharing
 The core elements of OpenMP are the constructs for thread creation, workload distribution (work sharing), data-environment management, thread synchronization, user-level runtime routines and environment variables.
 
 Parallel construct
-==================
+++++++++++++++++++
 
 The parallel regions are created using the parallel construct. When this construct is encounter additional thread are forked to carry out the work enclose in it. 
 
