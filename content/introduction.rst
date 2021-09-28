@@ -128,20 +128,21 @@ All threads inside the construct execute the same, there is not work sharing yet
       
 
 Data sharing
-------------        
+++++++++++++
+
 The above code when run will produce undefined results for the omp_rank variable. This happens becuase by default most of the variables are *shared*. All threads will write to the same variable resultingin a *race condition*. Data sharing attribute closes can be added to the constructs to avoid this. A variable can be *shared* (default), *private* (only visible to the thread), *firstprivate* (like private, but with original value from the serial region), *lastprivate* (the value is visible after the construct). The *reduction* clause indicates an operation and the variable which is private for each thread, which is going to be reduced. The programmer can also specify via the *default* clause  the default data scoping within a parallel region. 
 
 The previous code now will work correctly by adding *private(omp_rank)* to the construct.
 
 Work sharing
-~~~~~~~~~~~~ 
+------------ 
 
 The work can is splitted among the threads using the work-sharing constructs:
 
-- *omp for* or *omp do*: used to split up loop iterations among the threads, also called loop constructs.
-- *sections*: assigning consecutive but independent code blocks to different threads
-- *single*: specifying a code block that is executed by only one thread, a barrier is implied in the end
-- *master* : similar to single, but the code block will be executed by the master thread only and no barrier implied in the end.
+   - *omp for* or *omp do*: used to split up loop iterations among the threads, also called loop constructs.
+   - *sections*: assigning consecutive but independent code blocks to different threads
+   - *single*: specifying a code block that is executed by only one thread, a barrier is implied in the end
+   - *master* : similar to single, but the code block will be executed by the master thread only and no barrier implied in the end.
 
    .. tabs::
 
