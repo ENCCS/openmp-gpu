@@ -58,26 +58,36 @@ Both approaches have their advantages and disadvantages.  Distributed machines a
 OpenMP
 ~~~~~~
 
-OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. No OpenMP support in hte system they become comments and the code works just any other  serial code.
+OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. No OpenMP support in the system they become comments and the code works just any other  serial code.
+
+Compiling an OpenMP program
+---------------------------
+
+In order to use OpenMP the compiler needs to have support for it  enabled, done by adding an option:
+- GNU: -fopenmp
+- Intel: -qopenmp
+- Cray: -h omp
+PGI: -mp[=nonuma,align,allcores,bind]
 
 Fork-join model
 ---------------
-
-OpenMP programs begin as a single process, the **master** thread, until they reach a parallel region, which then spawns a team of threads. 
+OpenMP program begin as a single process, the **master** thread. Everything os executed sequentially until the first parallel region
+construct is encountered. 
 
 .. figure:: img/threads.png
    :align: center
 
+When a parallel region is encountered, master thread creates a group of threads, becomes the master of this group of threads, and is assigned the thread id 0 within the group.
 
 Parallel regions and data sharing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+---------------------------------
 
 The core elements of OpenMP are the constructs for thread creation, workload distribution (work sharing), data-environment management, thread synchronization, user-level runtime routines and environment variables.
 
 Parallel construct
-------------------
+++++++++++++++++++
 
-The parallel construct is used to fork additional threads to carry out the work enclose in it. 
+The parallel regions are created using the parallel construct. When this construct is encounter additional thread are forked to carry out the work enclose in it. 
 
 .. figure:: img/omp-parallel.png
    :align: center
