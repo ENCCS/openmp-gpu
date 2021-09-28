@@ -64,10 +64,10 @@ Compiling an OpenMP program
 ---------------------------
 
 In order to use OpenMP the compiler needs to have support for it  enabled, done by adding an option:
-- GNU: -fopenmp
-- Intel: -qopenmp
-- Cray: -h omp
-PGI: -mp[=nonuma,align,allcores,bind]
+   - GNU: -fopenmp
+   - Intel: -qopenmp
+   - Cray: -h omp
+   - PGI: -mp[=nonuma,align,allcores,bind]
 
 Fork-join model
 ---------------
@@ -128,7 +128,8 @@ All threads inside the construct execute the same, there is not work sharing yet
       
 
 Data sharing
-------------        
+++++++++++++
+
 The above code when run will produce undefined results for the omp_rank variable. This happens becuase by default most of the variables are *shared*. All threads will write to the same variable resultingin a *race condition*. Data sharing attribute closes can be added to the constructs to avoid this. A variable can be *shared* (default), *private* (only visible to the thread), *firstprivate* (like private, but with original value from the serial region), *lastprivate* (the value is visible after the construct). The *reduction* clause indicates an operation and the variable which is private for each thread, which is going to be reduced. The programmer can also specify via the *default* clause  the default data scoping within a parallel region. 
 
 The previous code now will work correctly by adding *private(omp_rank)* to the construct.
