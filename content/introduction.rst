@@ -86,6 +86,59 @@ In order to use OpenMP the compiler needs to have support for it  enabled, done 
    - Cray: -h omp
    - PGI: -mp[=nonuma,align,allcores,bind]
 
+
+
+OpenMP environment variables
+-----------------------------
+
+- OpenMP provides several means to interact with the execution
+  environment. These operations include e.g.
+    - Setting the number of threads for parallel regions
+    - Requesting the number of CPUs
+    - Changing the default scheduling for work-sharing clauses
+- Improves portability of OpenMP programs between different architectures
+  (number of CPUs, etc.)
+
+A method to alter the execution features of OpenMP applications. Used to control loop iterations scheduling, default number of threads, etc. For example, OMP_NUM_THREADS is used to specify number of threads for an application.
+
+
+Environment variables
++++++++++++++++++++++
+
+- OpenMP standard defines a set of environment variables that all
+  implementations have to support
+- The environment variables are set before the program execution and they are
+  read during program start-up
+    - Changing them during the execution has no effect
+
+
+Some environment variables
+++++++++++++++++++++++++++
+
+| Variable         | Action                                              |
+|------------------|-----------------------------------------------------|
+| OMP_NUM_THREADS  | Number of threads to use                            |
+| OMP_PROC_BIND    | Bind threads to CPUs                                |
+| OMP_PLACES       | Specify the bindings between threads and CPUs       |
+| OMP_DISPLAY_ENV  | Print the current OpenMP environment info on stderr |
+
+OpenMP runtime library
+----------------------
+Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
+
+Runtime functions
++++++++++++++++++
+
+- Runtime functions can be used either to read the settings or to set
+  (override) the values
+- Function definitions are in
+    - C/C++ header file `omp`.h
+    - `omp_lib` Fortran module (`omp_lib`.h header in some implementations)
+- Two useful routines for finding out thread ID and number of threads:
+    - `omp_get_thread_num()`
+    - `omp_get_num_threads()`
+
+
 Fork-join model
 ---------------
 OpenMP program begin as a single process, the **master** thread. Everything os executed sequentially until the first parallel region
@@ -154,16 +207,19 @@ The previous code now will work correctly by adding *private(omp_rank)* to the c
 Work sharing
 ~~~~~~~~~~~~ 
 
-The work can is splitted among the threads using the work-sharing constructs:
+In a parallel region all threads execute the sme code. The division of work can be done by the user, based on the thread id (or thread rank) different subtasks can be assigned to different threads, or by using the work-sharing constructs:
 
 - *omp for* or *omp do*: used to split up loop iterations among the threads, also called loop constructs.
 - *sections*: assigning consecutive but independent code blocks to different threads
 - *single*: specifying a code block that is executed by only one thread, a barrier is implied in the end
 - *master* : similar to single, but the code block will be executed by the master thread only and no barrier implied in the end.
+- *task*: allows to create units of work dynamically for parallelizing irregular algorithms such as recursive algorithms. 
+- *workshare*: divides the execution of the enclosed structured block into separate units of work. Each unit of work is executied by one thread.  (Fortran only)
+
 
    .. tabs::
 
-      .. tab:: C
+      .. tab:: C/C++
          
          .. code-block:: C++
              
@@ -197,7 +253,7 @@ The work can is splitted among the threads using the work-sharing constructs:
             !$omp end parallel
               end program hello
               
-In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the numebr of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
+In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the numberr of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
 
 Second heading
 --------------
