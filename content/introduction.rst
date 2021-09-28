@@ -64,10 +64,10 @@ Compiling an OpenMP program
 ---------------------------
 
 In order to use OpenMP the compiler needs to have support for it  enabled, done by adding an option:
-- GNU: -fopenmp
-- Intel: -qopenmp
-- Cray: -h omp
-PGI: -mp[=nonuma,align,allcores,bind]
+   - GNU: -fopenmp
+   - Intel: -qopenmp
+   - Cray: -h omp
+   - PGI: -mp[=nonuma,align,allcores,bind]
 
 Fork-join model
 ---------------
