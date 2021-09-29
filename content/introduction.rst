@@ -60,6 +60,9 @@ OpenMP
 
 OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. No OpenMP support in the system they become comments and the code works just any other  serial code.
 
+OpenMP Directives
+-----------------
+
 Here are some prototypes of OpenMP directives:
 
    .. tabs::
@@ -75,10 +78,9 @@ Here are some prototypes of OpenMP directives:
          .. code-block:: Fortran
             
             !$ omp directive [clauses]
-           
- 
+            
 Compiling an OpenMP program
----------------------------
++++++++++++++++++++++++++++
 
 In order to use OpenMP the compiler needs to have support for it  enabled, done by adding an option:
    - GNU: -fopenmp
@@ -86,6 +88,12 @@ In order to use OpenMP the compiler needs to have support for it  enabled, done 
    - Cray: -h omp
    - PGI: -mp[=nonuma,align,allcores,bind]
 
+
+           
+Runtime library routines
+------------------------
+
+Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
 
 
 OpenMP environment variables
