@@ -159,8 +159,6 @@ In a parallel region all threads execute the same code. The division of work can
 - *workshare*: divides the execution of the enclosed structured block into separate units of work. Each unit of work is executied by one thread.  (Fortran only)
 
 
-Example a 
-
    .. tabs::
 
       .. tab:: C/C++
@@ -168,7 +166,6 @@ Example a
          .. code-block:: C++
              
             #include <stdio.h>
-            #include <omp.h>
               int main(int argc, char argv[]){
               int a[1000];
             #pragma omp parallel
@@ -185,8 +182,6 @@ Example a
          .. code-block:: Fortran
             
               program hello
-              use omp_lib
-              integer :: omp_rank
               integer :: a[1000]
             !$omp parallel 
             !$omp do
@@ -197,6 +192,7 @@ Example a
             !$omp end parallel
               end program hello
               
+
 In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the number of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
 
 Clauses
@@ -215,13 +211,37 @@ By default all variables are *shared*. Sometimes *private* variables are necessa
  - *lastprivate*: like private except original value is updated after construct.
  - *reduction*: a safe way of joining work from all threads after construct.
 
+Bellow is an example of *reductiomn* code without race condition:
+
+   .. tabs::
+
+      .. tab:: C/C++
+         
+         .. code-block:: C++
+             
+            #pragma omp parallel for shared(x,y,n) private(i) reduction(+:asum){
+               for(i=0; i < n; i++) {
+                   asum = asum + x[i] * y[i];
+               }
+             }
+                                
+      .. tab:: Fortran
+         
+         .. code-block:: Fortran
+            
+            !$omp parallel do shared(x,y,n) private(i) reduction(+:asum)
+               do i = 1, n
+                  asum = asum + x(i)*y(i)
+               end do
+            !$omp end parallel
+
 Synchronization clauses
 +++++++++++++++++++++++
 
  - *critical*: the enclosed code block will be executed by only one thread at a time, and not simultaneously executed by multiple threads. It is often used to protect shared data from race conditions.
  - *atomic*: the memory update (write, or read-modify-write) in the next instruction will be performed atomically. It does not make the entire statement atomic; only the memory update is atomic. A compiler might use special hardware instructions for better performance than when using critical.
  - *ordered*: the structured block is executed in the order in which iterations would be executed in a sequential loop
-barrier: each thread waits until all of the other threads of a team have reached this point. A work-sharing construct has an implicit barrier synchronization at the end.
+ - *barrier*: each thread waits until all of the other threads of a team have reached this point. A work-sharing construct has an implicit barrier synchronization at the end.
  - *nowait*: specifies that threads completing assigned work can proceed without waiting for all threads in the team to finish. In the absence of this clause, threads encounter a barrier synchronization at the end of the work sharing construct.
 
 Scheduling clauses
@@ -240,9 +260,9 @@ IF control
 Initialization
 ++++++++++++++
 
-- *firstprivate*: the data is private to each thread, but initialized using the value of the variable using the same name from the master thread.
+ - *firstprivate*: the data is private to each thread, but initialized using the value of the variable using the same name from the master thread.
 lastprivate: the data is private to each thread. The value of this private data will be copied to a global variable using the same name outside the parallel region if current iteration is the last iteration in the parallelized loop. A variable can be both firstprivate and lastprivate.
-threadprivate: The data is a global data, but it is private in each parallel region during the runtime. The difference between threadprivate and private is the global scope associated with threadprivate and the preserved value across parallel regions.
+ - *threadprivate*: The data is a global data, but it is private in each parallel region during the runtime. The difference between threadprivate and private is the global scope associated with threadprivate and the preserved value across parallel regions.
 
 Data copying
 ++++++++++++
@@ -258,7 +278,7 @@ Others
 ++++++
 
  - *flush*: The value of this variable is restored from the register to the memory for using this value outside of a parallel part
-master: Executed only by the master thread (the thread which forked off all the others during the execution of the OpenMP directive). No implicit barrier; other team members (threads) not required to reach.
+ - *master*: Executed only by the master thread (the thread which forked off all the others during the execution of the OpenMP directive). No implicit barrier; other team members (threads) not required to reach.
 
 Runtime library routines
 ------------------------
