@@ -58,10 +58,33 @@ Both approaches have their advantages and disadvantages.  Distributed machines a
 OpenMP
 ~~~~~~
 
-OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. No OpenMP support in the system they become comments and the code works just any other  serial code.
+OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. If there no OpenMP support in the system they become comments and the code works just any other  serial code.
+
+
+Execution model 
+---------------
+OpenMP API uses the fork-join model of parallel execution. The  program begins as a single thread of execution, the **master** thread. Everything is executed sequentially until the first parallel region
+construct is encountered. 
+
+.. figure:: img/threads.png
+   :align: center
+
+When a parallel region is encountered, master thread creates a group of threads, becomes the master of this group of threads, and is assigned the thread index 0 within the group. There is an implicit barrier at the end of the parallel regions. 
+
+OpenMP Memory Model
+-------------------
+
+In the OpenMP API supports a relaxed-consistency shared-memory model. The **global memory** is a shared place where all threads can store and retrieve variables. In addition to it each thread has its own **temporary view** of the memory. The temporary view of memory can represent any kind of intervening structure, such as machine registers, cache, or other local storage, between the thread and the memory it  allows the thread to cache variables and  to avoid going to memory for every reference to a variable.  The temporary view of memory is not necesseraly consistent with that of other threads. Finally each thread has access to a part of memory that can not be access by the other threads, the **threadprivate memory**.
+
+
+Inside a parallel region there are two kinds of of access of the variables, *shared* and *private*. Each reference to a shared variable in the structured block becomes a reference to the originalvariable, while for each private variable referenced in the structured block, a new version of
+the original variable is created in memory for each thread. In the case of nested parallel regions a variable which private can be made shared to the inner parallel region.
 
 OpenMP Directives
 -----------------
+
+In OpenMP the compiler directives are specified by using **#pragma** in C/C++ or as special comments identified by unique sentinels in Fortran. Compilers can ingnore the OpenMP directives if the support for OpenMP is not enabled, 
+
 
 Here are some prototypes of OpenMP directives:
 
@@ -78,89 +101,12 @@ Here are some prototypes of OpenMP directives:
          .. code-block:: Fortran
             
             !$ omp directive [clauses]
-            
-Compiling an OpenMP program
-+++++++++++++++++++++++++++
 
-In order to use OpenMP the compiler needs to have support for it  enabled, done by adding an option:
-   - GNU: -fopenmp
-   - Intel: -qopenmp
-   - Cray: -h omp
-   - PGI: -mp[=nonuma,align,allcores,bind]
-
-
-           
-Runtime library routines
-------------------------
-
-Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
-
-
-OpenMP environment variables
------------------------------
-
-- OpenMP provides several means to interact with the execution
-  environment. These operations include e.g.
-    - Setting the number of threads for parallel regions
-    - Requesting the number of CPUs
-    - Changing the default scheduling for work-sharing clauses
-- Improves portability of OpenMP programs between different architectures
-  (number of CPUs, etc.)
-
-A method to alter the execution features of OpenMP applications. Used to control loop iterations scheduling, default number of threads, etc. For example, OMP_NUM_THREADS is used to specify number of threads for an application.
-
-
-Environment variables
-+++++++++++++++++++++
-
-- OpenMP standard defines a set of environment variables that all
-  implementations have to support
-- The environment variables are set before the program execution and they are
-  read during program start-up
-    - Changing them during the execution has no effect
-
-
-Some environment variables
-++++++++++++++++++++++++++
-
-| Variable         | Action                                              |
-|------------------|-----------------------------------------------------|
-| OMP_NUM_THREADS  | Number of threads to use                            |
-| OMP_PROC_BIND    | Bind threads to CPUs                                |
-| OMP_PLACES       | Specify the bindings between threads and CPUs       |
-| OMP_DISPLAY_ENV  | Print the current OpenMP environment info on stderr |
-
-OpenMP runtime library
-----------------------
-Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
-
-Runtime functions
-+++++++++++++++++
-
-- Runtime functions can be used either to read the settings or to set
-  (override) the values
-- Function definitions are in
-    - C/C++ header file `omp`.h
-    - `omp_lib` Fortran module (`omp_lib`.h header in some implementations)
-- Two useful routines for finding out thread ID and number of threads:
-    - `omp_get_thread_num()`
-    - `omp_get_num_threads()`
-
-
-Fork-join model
----------------
-OpenMP program begin as a single process, the **master** thread. Everything os executed sequentially until the first parallel region
-construct is encountered. 
-
-.. figure:: img/threads.png
-   :align: center
-
-When a parallel region is encountered, master thread creates a group of threads, becomes the master of this group of threads, and is assigned the thread id 0 within the group.
 
 Parallel regions and data sharing
 ---------------------------------
 
-The core elements of OpenMP are the constructs for thread creation, workload distribution (work sharing), data-environment management, thread synchronization, user-level runtime routines and environment variables.
+The compiler directives are sued for various purposes: for thread creation, workload distribution (work sharing), data-environment management, serializing sections of code or for synchronization of work among the threads.
 
 Parallel construct
 ++++++++++++++++++
@@ -262,6 +208,75 @@ In a parallel region all threads execute the sme code. The division of work can 
               end program hello
               
 In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the numberr of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
+
+
+           
+Runtime library routines
+------------------------
+
+Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
+
+
+OpenMP environment variables
+-----------------------------
+
+- OpenMP provides several means to interact with the execution
+  environment. These operations include e.g.
+    - Setting the number of threads for parallel regions
+    - Requesting the number of CPUs
+    - Changing the default scheduling for work-sharing clauses
+- Improves portability of OpenMP programs between different architectures
+  (number of CPUs, etc.)
+
+A method to alter the execution features of OpenMP applications. Used to control loop iterations scheduling, default number of threads, etc. For example, OMP_NUM_THREADS is used to specify number of threads for an application.
+
+
+Environment variables
++++++++++++++++++++++
+
+- OpenMP standard defines a set of environment variables that all
+  implementations have to support
+- The environment variables are set before the program execution and they are
+  read during program start-up
+    - Changing them during the execution has no effect
+
+
+Some environment variables
+++++++++++++++++++++++++++
+
+| Variable         | Action                                              |
+|------------------|-----------------------------------------------------|
+| OMP_NUM_THREADS  | Number of threads to use                            |
+| OMP_PROC_BIND    | Bind threads to CPUs                                |
+| OMP_PLACES       | Specify the bindings between threads and CPUs       |
+| OMP_DISPLAY_ENV  | Print the current OpenMP environment info on stderr |
+
+OpenMP runtime library
+----------------------
+Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
+
+Runtime functions
++++++++++++++++++
+
+- Runtime functions can be used either to read the settings or to set
+  (override) the values
+- Function definitions are in
+    - C/C++ header file `omp`.h
+    - `omp_lib` Fortran module (`omp_lib`.h header in some implementations)
+- Two useful routines for finding out thread ID and number of threads:
+    - `omp_get_thread_num()`
+    - `omp_get_num_threads()`
+
+
+            
+Compiling an OpenMP program
+---------------------------
+
+In order to use OpenMP the compiler needs to have support for it. The OpenMP support is enabled by adding an extra compiling option:
+   - GNU: -fopenmp
+   - Intel: -qopenmp
+   - Cray: -h omp
+   - PGI: -mp[=nonuma,align,allcores,bind]
 
 Second heading
 --------------
