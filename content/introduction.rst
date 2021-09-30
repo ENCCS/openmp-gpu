@@ -102,15 +102,10 @@ Here are some prototypes of OpenMP directives:
             !$ omp directive [clauses]
 
 
-Parallel regions and data sharing
----------------------------------
+Parallel regions 
+----------------
 
-The compiler directives are used for various purposes: for thread creation, workload distribution (work sharing), data-environment management, serializing sections of code or for synchronization of work among the threads.
-
-Parallel construct
-++++++++++++++++++
-
-The parallel regions are created using the parallel construct. When this construct is encounter additional thread are forked to carry out the work enclose in it. 
+The compiler directives are used for various purposes: for thread creation, workload distribution (work sharing), data-environment management, serializing sections of code or for synchronization of work among the threads. The parallel regions are created using the **parallel** construct. When this construct is encounter additional thread are forked to carry out the work enclose in it. 
 
 .. figure:: img/omp-parallel.png
    :align: center
@@ -149,13 +144,7 @@ All threads inside the construct execute the same, there is not work sharing yet
             !$omp end parallel
               end program hello
       
-
-Data sharing
-++++++++++++
-
-The above code when run will produce undefined results for the omp_rank variable. This happens becuase by default most of the variables are *shared*. All threads will write to the same variable resultingin a *race condition*. Data sharing attribute closes can be added to the constructs to avoid this. A variable can be *shared* (default), *private* (only visible to the thread), *firstprivate* (like private, but with original value from the serial region), *lastprivate* (the value is visible after the construct). The *reduction* clause indicates an operation and the variable which is private for each thread, which is going to be reduced. The programmer can also specify via the *default* clause  the default data scoping within a parallel region. 
-
-The previous code now will work correctly by adding *private(omp_rank)* to the construct.
+Note that the value of the *omp_rank* is in this example undefined.
 
 Work sharing
 ------------ 
@@ -169,6 +158,8 @@ In a parallel region all threads execute the same code. The division of work can
 - *task*: allows to create units of work dynamically for parallelizing irregular algorithms such as recursive algorithms. 
 - *workshare*: divides the execution of the enclosed structured block into separate units of work. Each unit of work is executied by one thread.  (Fortran only)
 
+
+Example a 
 
    .. tabs::
 
@@ -206,10 +197,69 @@ In a parallel region all threads execute the same code. The division of work can
             !$omp end parallel
               end program hello
               
-In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the numberr of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
+In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the number of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
 
+Clauses
+-------
 
-           
+Together with compiler directives, OpenMP provides **clauses** that  can used to control the parallelism of regions of code. The clauses specify additional behaivior the user wants to occur. The clauses are appended in the code to the directives.
+
+Data sharing attribute clauses
+++++++++++++++++++++++++++++++
+
+By default all variables are *shared*. Sometimes *private* variables are necessary to avoid race conditions
+ - *shared*: the data declared outside a parallel region is shared, which means visible and accessible by all threads simultaneously. By default, all variables in the work sharing region are shared except the loop iteration counter.
+ - *private*: the data declared within a parallel region is private to each thread, which means each thread will have a local copy and use it as a temporary variable. A private variable is not initialized and the value is not maintained for use outside the parallel region. By default, the loop iteration counters in the OpenMP loop constructs are private.
+ - *default*: allows the programmer to state that the default data scoping within a parallel region will be either shared, or none for C/C++, or shared, firstprivate, private, or none for Fortran. The none option forces the programmer to declare each variable in the parallel region using the data sharing attribute clauses.
+ - *firstprivate*: like private except initialized to original value.
+ - *lastprivate*: like private except original value is updated after construct.
+ - *reduction*: a safe way of joining work from all threads after construct.
+
+Synchronization clauses
++++++++++++++++++++++++
+
+ - *critical*: the enclosed code block will be executed by only one thread at a time, and not simultaneously executed by multiple threads. It is often used to protect shared data from race conditions.
+ - *atomic*: the memory update (write, or read-modify-write) in the next instruction will be performed atomically. It does not make the entire statement atomic; only the memory update is atomic. A compiler might use special hardware instructions for better performance than when using critical.
+ - *ordered*: the structured block is executed in the order in which iterations would be executed in a sequential loop
+barrier: each thread waits until all of the other threads of a team have reached this point. A work-sharing construct has an implicit barrier synchronization at the end.
+ - *nowait*: specifies that threads completing assigned work can proceed without waiting for all threads in the team to finish. In the absence of this clause, threads encounter a barrier synchronization at the end of the work sharing construct.
+
+Scheduling clauses
+++++++++++++++++++
+
+ - *schedule* (type, chunk): This is useful if the work sharing construct is a do-loop or for-loop. The iterations in the work sharing construct are assigned to threads according to the scheduling method defined by this clause. The three types of scheduling are:
+ - *static*: Here, all the threads are allocated iterations before they execute the loop iterations. The iterations are divided among threads equally by default. However, specifying an integer for the parameter chunk will allocate chunk number of contiguous iterations to a particular thread.
+ - *dynamic*: Here, some of the iterations are allocated to a smaller number of threads. Once a particular thread finishes its allocated iteration, it returns to get another one from the iterations that are left. The parameter chunk defines the number of contiguous iterations that are allocated to a thread at a time.
+ - *guided*: A large chunk of contiguous iterations are allocated to each thread dynamically (as above). The chunk size decreases exponentially with each successive allocation to a minimum size specified in the parameter chunk
+
+IF control
+++++++++++
+
+ - *if*: This will cause the threads to parallelize the task only if a condition is met. Otherwise the code block executes serially.
+
+Initialization
+++++++++++++++
+
+- *firstprivate*: the data is private to each thread, but initialized using the value of the variable using the same name from the master thread.
+lastprivate: the data is private to each thread. The value of this private data will be copied to a global variable using the same name outside the parallel region if current iteration is the last iteration in the parallelized loop. A variable can be both firstprivate and lastprivate.
+threadprivate: The data is a global data, but it is private in each parallel region during the runtime. The difference between threadprivate and private is the global scope associated with threadprivate and the preserved value across parallel regions.
+
+Data copying
+++++++++++++
+
+ - *copyin*: similar to firstprivate for private variables, threadprivate variables are not initialized, unless using copyin to pass the value from the corresponding global variables. No copyout is needed because the value of a threadprivate variable is maintained throughout the execution of the whole program.
+ - *copyprivate* : used with single to support the copying of data values from private objects on one thread (the single thread) to the corresponding objects on other threads in the team.
+
+Reduction
++++++++++
+ - *reduction* (operator | intrinsic : list): the variable has a local copy in each thread, but the values of the local copies will be summarized (reduced) into a global shared variable. This is very useful if a particular operation (specified in operator for this particular clause) on a variable runs iteratively, so that its value at a particular iteration depends on its value at a prior iteration. The steps that lead up to the operational increment are parallelized, but the threads updates the global variable in a thread safe manner. This would be required in parallelizing numerical integration of functions and differential equations, as a common example.
+
+Others
+++++++
+
+ - *flush*: The value of this variable is restored from the register to the memory for using this value outside of a parallel part
+master: Executed only by the master thread (the thread which forked off all the others during the execution of the OpenMP directive). No implicit barrier; other team members (threads) not required to reach.
+
 Runtime library routines
 ------------------------
 
