@@ -106,7 +106,7 @@ Here are some prototypes of OpenMP directives:
 Parallel regions and data sharing
 ---------------------------------
 
-The compiler directives are sued for various purposes: for thread creation, workload distribution (work sharing), data-environment management, serializing sections of code or for synchronization of work among the threads.
+The compiler directives are used for various purposes: for thread creation, workload distribution (work sharing), data-environment management, serializing sections of code or for synchronization of work among the threads.
 
 Parallel construct
 ++++++++++++++++++
