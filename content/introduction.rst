@@ -158,6 +158,7 @@ In a parallel region all threads execute the same code. The division of work can
 - *task*: allows to create units of work dynamically for parallelizing irregular algorithms such as recursive algorithms. 
 - *workshare*: divides the execution of the enclosed structured block into separate units of work. Each unit of work is executied by one thread.  (Fortran only)
 
+Example of a trivially parallelizable problem using the *loop* workshare construct:
 
    .. tabs::
 
