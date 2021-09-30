@@ -151,12 +151,14 @@ Work sharing
 
 In a parallel region all threads execute the same code. The division of work can be done by the user, based on the thread id (or thread rank) different subtasks can be assigned to different threads, or by using the work-sharing constructs:
 
-- *omp for* or *omp do*: used to split up loop iterations among the threads, also called loop constructs.
+- *omp for* or *omp do*: used to split up loop iterations among the threads, also called *loop* constructs.
 - *sections*: assigning consecutive but independent code blocks to different threads
 - *single*: specifying a code block that is executed by only one thread, a barrier is implied in the end
 - *master* : similar to single, but the code block will be executed by the master thread only and no barrier implied in the end.
 - *task*: allows to create units of work dynamically for parallelizing irregular algorithms such as recursive algorithms. 
 - *workshare*: divides the execution of the enclosed structured block into separate units of work. Each unit of work is executied by one thread.  (Fortran only)
+- *simd*: indicates that multiple iterations of the loop can be executed concurrently using SIMD instructions
+
 
 Example of a trivially parallelizable problem using the *loop* workshare construct:
 
@@ -193,8 +195,9 @@ Example of a trivially parallelizable problem using the *loop* workshare constru
             !$omp end parallel
               end program hello
               
+            In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the number of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
 
-In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the number of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
+The constructs can be combined if one is imediatly nested inside another construct.
 
 Clauses
 -------
@@ -212,7 +215,7 @@ By default all variables are *shared*. Sometimes *private* variables are necessa
  - *lastprivate*: like private except original value is updated after construct.
  - *reduction*: a safe way of joining work from all threads after construct.
 
-Bellow is an example of *reductiomn* code without race condition:
+Bellow is an example of *reduction* code without race condition:
 
    .. tabs::
 
@@ -264,12 +267,6 @@ Initialization
  - *firstprivate*: the data is private to each thread, but initialized using the value of the variable using the same name from the master thread.
 lastprivate: the data is private to each thread. The value of this private data will be copied to a global variable using the same name outside the parallel region if current iteration is the last iteration in the parallelized loop. A variable can be both firstprivate and lastprivate.
  - *threadprivate*: The data is a global data, but it is private in each parallel region during the runtime. The difference between threadprivate and private is the global scope associated with threadprivate and the preserved value across parallel regions.
-
-Data copying
-++++++++++++
-
- - *copyin*: similar to firstprivate for private variables, threadprivate variables are not initialized, unless using copyin to pass the value from the corresponding global variables. No copyout is needed because the value of a threadprivate variable is maintained throughout the execution of the whole program.
- - *copyprivate* : used with single to support the copying of data values from private objects on one thread (the single thread) to the corresponding objects on other threads in the team.
 
 Reduction
 +++++++++
