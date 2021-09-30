@@ -77,8 +77,7 @@ OpenMP Memory Model
 In the OpenMP API supports a relaxed-consistency shared-memory model. The **global memory** is a shared place where all threads can store and retrieve variables. In addition to it each thread has its own **temporary view** of the memory. The temporary view of memory can represent any kind of intervening structure, such as machine registers, cache, or other local storage, between the thread and the memory it  allows the thread to cache variables and  to avoid going to memory for every reference to a variable.  The temporary view of memory is not necesseraly consistent with that of other threads. Finally each thread has access to a part of memory that can not be access by the other threads, the **threadprivate memory**.
 
 
-Inside a parallel region there are two kinds of of access of the variables, *shared* and *private*. Each reference to a shared variable in the structured block becomes a reference to the originalvariable, while for each private variable referenced in the structured block, a new version of
-the original variable is created in memory for each thread. In the case of nested parallel regions a variable which private can be made shared to the inner parallel region.
+Inside a parallel region there are two kinds of access of the variables, *shared* and *private*. Each reference to a shared variable in the structured block becomes a reference to the original variable, while for each private variable referenced in the structured block, a new version of the original variable is created in memory for each thread. In the case of nested parallel regions a variable which private can be made shared to the inner parallel region.
 
 OpenMP Directives
 -----------------
@@ -159,7 +158,7 @@ The above code when run will produce undefined results for the omp_rank variable
 The previous code now will work correctly by adding *private(omp_rank)* to the construct.
 
 Work sharing
-~~~~~~~~~~~~ 
+------------ 
 
 In a parallel region all threads execute the same code. The division of work can be done by the user, based on the thread id (or thread rank) different subtasks can be assigned to different threads, or by using the work-sharing constructs:
 
