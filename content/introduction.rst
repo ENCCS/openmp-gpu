@@ -161,7 +161,7 @@ The previous code now will work correctly by adding *private(omp_rank)* to the c
 Work sharing
 ~~~~~~~~~~~~ 
 
-In a parallel region all threads execute the sme code. The division of work can be done by the user, based on the thread id (or thread rank) different subtasks can be assigned to different threads, or by using the work-sharing constructs:
+In a parallel region all threads execute the same code. The division of work can be done by the user, based on the thread id (or thread rank) different subtasks can be assigned to different threads, or by using the work-sharing constructs:
 
 - *omp for* or *omp do*: used to split up loop iterations among the threads, also called loop constructs.
 - *sections*: assigning consecutive but independent code blocks to different threads
