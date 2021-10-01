@@ -320,20 +320,6 @@ The portability of the code can be mantained by using the conditional compilatio
 OpenMP environment variables
 -----------------------------
 
-- OpenMP provides several means to interact with the execution
-  environment. These operations include e.g.
-    - Setting the number of threads for parallel regions
-    - Requesting the number of CPUs
-    - Changing the default scheduling for work-sharing clauses
-- Improves portability of OpenMP programs between different architectures
-  (number of CPUs, etc.)
-
-A method to alter the execution features of OpenMP applications. Used to control loop iterations scheduling, default number of threads, etc. For example, OMP_NUM_THREADS is used to specify number of threads for an application.
-
-
-Environment variables
-+++++++++++++++++++++
-
 OpenMP standard defines a set of environment variables that all implementations have to support. The environment variables are set before the program execution and they are read during program start-up. They can be used to control the execution of the parallel code at run-time. They are used to set the number of threads, specify the binding of the threads or specify how the loop interations are divided. 
 
 
@@ -353,7 +339,7 @@ Below are a few environment variables:
  OMP_PROC_BIND     Bind threads to CPUs                                
  OMP_PLACES        Specify the bindings between threads and CPUs       
  OMP_DISPLAY_ENV   Print the current OpenMP environment info on stderr 
- ================ ======================================================
+================= =====================================================
             
 Compiling an OpenMP program
 ---------------------------
