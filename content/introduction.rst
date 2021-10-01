@@ -121,13 +121,10 @@ All threads inside the construct execute the same, there is not work sharing yet
          .. code-block:: C++
              
             #include <stdio.h>
-            #include <omp.h>
               int main(int argc, char argv[]){
-              int omp_rank;
             #pragma omp parallel
              {
-               omp_rank = omp_get_thread_num();
-               printf("Hello world! by thread %d", omp_rank);
+               printf("Hello world!");
               }
              }
                                 
@@ -136,15 +133,13 @@ All threads inside the construct execute the same, there is not work sharing yet
          .. code-block:: Fortran
             
               program hello
-              use omp_lib
               integer :: omp_rank
             !$omp parallel 
-              omp_rank = omp_get_thread_num()
-              print *, 'Hello world! by thread ', omp_rank
+              print *, 'Hello world! by thread '
             !$omp end parallel
               end program hello
       
-Note that the value of the *omp_rank* is in this example undefined.
+Note that the value of the output from the *printf/print* can be all mixed up.
 
 Work sharing
 ------------ 
@@ -277,11 +272,49 @@ Others
 
  - *flush*: The value of this variable is restored from the register to the memory for using this value outside of a parallel part
  - *master*: Executed only by the master thread (the thread which forked off all the others during the execution of the OpenMP directive). No implicit barrier; other team members (threads) not required to reach.
+ - *collapse*: When more than one loop follows a *loop* construct it sppecifies how many loops in a nested loop should be collapsed into one large iteration space.
 
 Runtime library routines
 ------------------------
+The OpenMp includes and extensive suite of run-time routines. They can be used for many purposes:Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc.
 
-Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
+The functions definitions are in the *omp.h* header in C/C++ and in fortran in the *omp_lib* module.
+Soem very useful routines:
+ - *omp_get_num_threads()*
+ – *omp_get_thread_num()*
+ - *omp_get_wtime()*
+
+   .. tabs::
+
+      .. tab:: C/C++
+         
+         .. code-block:: C++
+             
+            
+            #include <omp.h>
+              int main(int argc, char argv[]){
+              int omp_rank;
+            #pragma omp parallel
+             {
+               omp_rank = omp_get_thread_num();
+               printf("Hello world! by thread %d", omp_rank);
+              }
+             }
+                                
+      .. tab:: Fortran
+         
+         .. code-block:: Fortran
+            
+              program hello
+              use omp_lib
+              integer :: omp_rank
+            !$omp parallel 
+              omp_rank = omp_get_thread_num()
+              print *, 'Hello world! by thread ', omp_rank
+            !$omp end parallel
+              end program hello
+
+The portability of the code can be mantained by using the conditional compilation  **ifdef _OPENMP**.
 
 
 OpenMP environment variables
@@ -307,6 +340,13 @@ Environment variables
   read during program start-up
     - Changing them during the execution has no effect
 
+Setting OpenMP environment variables is done the same way you set any other environment variables, and depends upon which shell you use. For example:
+
+--------------- ------------------------
+ **csh/tcsh**   setenv OMP_NUM_THREADS 8
+--------------- ------------------------
+ **sh/bash**    export OMP_NUM_THREADS=8
+--------------- ------------------------
 
 Some environment variables
 ++++++++++++++++++++++++++
@@ -317,29 +357,12 @@ Some environment variables
 | OMP_PROC_BIND    | Bind threads to CPUs                                |
 | OMP_PLACES       | Specify the bindings between threads and CPUs       |
 | OMP_DISPLAY_ENV  | Print the current OpenMP environment info on stderr |
-
-OpenMP runtime library
-----------------------
-Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc
-
-Runtime functions
-+++++++++++++++++
-
-- Runtime functions can be used either to read the settings or to set
-  (override) the values
-- Function definitions are in
-    - C/C++ header file `omp`.h
-    - `omp_lib` Fortran module (`omp_lib`.h header in some implementations)
-- Two useful routines for finding out thread ID and number of threads:
-    - `omp_get_thread_num()`
-    - `omp_get_num_threads()`
-
-
             
 Compiling an OpenMP program
 ---------------------------
 
 In order to use OpenMP the compiler needs to have support for it. The OpenMP support is enabled by adding an extra compiling option:
+
    - GNU: -fopenmp
    - Intel: -qopenmp
    - Cray: -h omp
@@ -384,19 +407,6 @@ you can pull out only some lines, or highlight others. Make sure both C++ and Fo
          .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
                         :language: fortran
                         :lines: 9-15
-
-Building the code
------------------
-
-If there's terminal output to discuss, show something like::
-
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c main.cpp -o main.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c core.cpp -o core.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c setup.cpp -o setup.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c utilities.cpp -o utilities.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common -c io.cpp -o io.o
-  nvc++ -g -O3 -fopenmp -Wall -I../common main.o core.o setup.o utilities.o io.o ../common/pngwriter.o -o heat_serial  -lpng
-
 
 Running the code
 ----------------
