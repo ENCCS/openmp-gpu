@@ -334,29 +334,26 @@ A method to alter the execution features of OpenMP applications. Used to control
 Environment variables
 +++++++++++++++++++++
 
-- OpenMP standard defines a set of environment variables that all
-  implementations have to support
-- The environment variables are set before the program execution and they are
-  read during program start-up
-    - Changing them during the execution has no effect
+OpenMP standard defines a set of environment variables that all implementations have to support. The environment variables are set before the program execution and they are read during program start-up. They can be used to control the execution of the parallel code at run-time. They are used to set the number of threads, specify the binding of the threads or specify how the loop interations are divided. 
 
-Setting OpenMP environment variables is done the same way you set any other environment variables, and depends upon which shell you use. For example:
 
---------------- ------------------------
+Setting OpenMP environment variables is done the same way you set any other environment variables. For example:
+
+============== ==========================
  **csh/tcsh**   setenv OMP_NUM_THREADS 8
---------------- ------------------------
  **sh/bash**    export OMP_NUM_THREADS=8
---------------- ------------------------
+============== ==========================
 
-Some environment variables
-++++++++++++++++++++++++++
+Below are a few environment variables:
 
-| Variable         | Action                                              |
-|------------------|-----------------------------------------------------|
-| OMP_NUM_THREADS  | Number of threads to use                            |
-| OMP_PROC_BIND    | Bind threads to CPUs                                |
-| OMP_PLACES       | Specify the bindings between threads and CPUs       |
-| OMP_DISPLAY_ENV  | Print the current OpenMP environment info on stderr |
+================= =====================================================
+ Variable           Action      
+================= =====================================================                                        
+ OMP_NUM_THREADS   Number of threads to use  
+ OMP_PROC_BIND     Bind threads to CPUs                                
+ OMP_PLACES        Specify the bindings between threads and CPUs       
+ OMP_DISPLAY_ENV   Print the current OpenMP environment info on stderr 
+ ================ ======================================================
             
 Compiling an OpenMP program
 ---------------------------
