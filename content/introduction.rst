@@ -260,7 +260,7 @@ Initialization
 ++++++++++++++
 
  - *firstprivate*: the data is private to each thread, but initialized using the value of the variable using the same name from the master thread.
-lastprivate: the data is private to each thread. The value of this private data will be copied to a global variable using the same name outside the parallel region if current iteration is the last iteration in the parallelized loop. A variable can be both firstprivate and lastprivate.
+ - *lastprivate*: the data is private to each thread. The value of this private data will be copied to a global variable using the same name outside the parallel region if current iteration is the last iteration in the parallelized loop. A variable can be both firstprivate and lastprivate.
  - *threadprivate*: The data is a global data, but it is private in each parallel region during the runtime. The difference between threadprivate and private is the global scope associated with threadprivate and the preserved value across parallel regions.
 
 Reduction
@@ -280,6 +280,7 @@ The OpenMp includes and extensive suite of run-time routines. They can be used f
 
 The functions definitions are in the *omp.h* header in C/C++ and in fortran in the *omp_lib* module.
 Soem very useful routines:
+
  - *omp_get_num_threads()*
  – *omp_get_thread_num()*
  - *omp_get_wtime()*
