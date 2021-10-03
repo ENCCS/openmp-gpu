@@ -58,7 +58,7 @@ Both approaches have their advantages and disadvantages.  Distributed machines a
 OpenMP
 ~~~~~~
 
-OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole the technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. If there no OpenMP support in the system they become comments and the code works just any other  serial code.
+OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. If there no OpenMP support in the system they become comments and the code works just as any other  serial code.
 
 
 Execution model 
