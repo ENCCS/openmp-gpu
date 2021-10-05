@@ -276,10 +276,10 @@ Others
 
 Runtime library routines
 ------------------------
-The OpenMp includes and extensive suite of run-time routines. They can be used for many purposes:Used to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc.
+The OpenMp includes and extensive suite of run-time routines. They can be used for many purposes: to modify/check the number of threads, detect if the execution context is in a parallel region, how many processors in current system, set/unset locks, timing functions, etc.
 
 The functions definitions are in the *omp.h* header in C/C++ and in fortran in the *omp_lib* module.
-Soem very useful routines:
+Some very useful routines:
 
  - *omp_get_num_threads()* 
  
