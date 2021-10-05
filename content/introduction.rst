@@ -282,8 +282,11 @@ The functions definitions are in the *omp.h* header in C/C++ and in fortran in t
 Soem very useful routines:
 
  - *omp_get_num_threads()* 
- – *omp_get_thread_num()* 
- - *omp_get_wtime()* 
+ 
+ - *omp_get_thread_num()*
+ 
+ - *omp_get_wtime()*
+ 
 
    .. tabs::
 
