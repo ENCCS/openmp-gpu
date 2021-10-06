@@ -197,7 +197,7 @@ The constructs can be combined if one is imediatly nested inside another constru
 Clauses
 -------
 
-Together with compiler directives, OpenMP provides **clauses** that  can used to control the parallelism of regions of code. The clauses specify additional behaivior the user wants to occur. The clauses are appended in the code to the directives.
+Together with compiler directives, OpenMP provides **clauses** that  can used to control the parallelism of regions of code. The clauses specify additional behaviour the user wants to occur and they refere to how the variables are visible to the threads (private or shared), synchronization, scheduling, control, etc. The clauses are appended in the code to the directives. Below is an list of many types of clauses available to the programmers:
 
 Data sharing attribute clauses
 ++++++++++++++++++++++++++++++
@@ -324,26 +324,21 @@ The portability of the code can be mantained by using the conditional compilatio
 OpenMP environment variables
 -----------------------------
 
-OpenMP standard defines a set of environment variables that all implementations have to support. The environment variables are set before the program execution and they are read during program start-up. They can be used to control the execution of the parallel code at run-time. They are used to set the number of threads, specify the binding of the threads or specify how the loop interations are divided. 
+OpenMP standard defines also  a set of environment variables that all implementations have to support. The environment variables are set before the program execution and they are read during program start-up. They can be used to control the execution of the parallel code at run-time. They are used to set the number of threads, specify the binding of the threads or specify how the loop interations are divided. 
 
 
 Setting OpenMP environment variables is done the same way you set any other environment variables. For example:
 
-============== ==========================
- **csh/tcsh**   setenv OMP_NUM_THREADS 8
- **sh/bash**    export OMP_NUM_THREADS=8
-============== ==========================
+ -  **csh/tcsh**   setenv OMP_NUM_THREADS 8
+ 
+ -  **sh/bash**    export OMP_NUM_THREADS=8
 
-Below are a few environment variables:
+Here are a few environment variables:
 
-================= =====================================================
- Variable           Action      
-================= =====================================================                                        
- OMP_NUM_THREADS   Number of threads to use  
- OMP_PROC_BIND     Bind threads to CPUs                                
- OMP_PLACES        Specify the bindings between threads and CPUs       
- OMP_DISPLAY_ENV   Print the current OpenMP environment info on stderr 
-================= =====================================================
+ - **OMP_NUM_THREADS**:   Number of threads to use  
+ - **OMP_PROC_BIND**:     Bind threads to CPUs                                
+ - **OMP_PLACES**:        Specify the bindings between threads and CPUs  
+ - **OMP_DISPLAY_ENV**:   Print the current OpenMP environment info on stderr
             
 Compiling an OpenMP program
 ---------------------------
@@ -355,57 +350,14 @@ In order to use OpenMP the compiler needs to have support for it. The OpenMP sup
    - Cray: -h omp
    - PGI: -mp[=nonuma,align,allcores,bind]
 
-Second heading
---------------
-
-Some more text, with a figure
-
-.. figure:: img/stencil.svg
-   :align: center
-
-   This is a sample image
-
-.. exercise::
-
-   TODO get the students to think about the content and answer a Zoom quiz
-
-.. solution::
-
-   Hide the answer and reasoning in here
-
-Some source code
-----------------
-
-Sometimes we need to look at code, which can be in the webpage and optionally
-you can pull out only some lines, or highlight others. Make sure both C++ and Fortran examples exist and work.
-
-.. typealong:: The field data structure
-
-   .. tabs::
-
-      .. tab:: C++
-
-         .. literalinclude:: code-samples/serial/heat.h
-                        :language: cpp
-                        :lines: 7-17
-                                
-      .. tab:: Fortran
-
-         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
-                        :language: fortran
-                        :lines: 9-15
-
-Running the code
-----------------
-
-To show a sample command line, use this approach
-
-.. code-block:: bash
-
-   ./heat_serial 800 800 1000
-
-
 .. keypoints::
 
-   - TODO summarize the learning outcome
-   - TODO
+   - OpenMP is the de facto standard for programming shared memory machines
+   - threaded based parallel programming model
+   - fork-join model 
+   - global memory, temporary view, thread private memory
+   - parallelism is exposed via directives which are treated as comments if no support
+   - work sharing done via specific constructs
+   - clauses provide additional control
+   - runtime libray provides an extensive suite of routines
+   - environment variables can be used to alter execution features of the the applications
