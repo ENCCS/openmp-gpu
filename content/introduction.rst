@@ -329,9 +329,9 @@ OpenMP standard defines also  a set of environment variables that all implementa
 
 Setting OpenMP environment variables is done the same way you set any other environment variables. For example:
 
- -  **csh/tcsh**   setenv OMP_NUM_THREADS 8
+ -  **csh/tcsh**:   setenv OMP_NUM_THREADS 8
  
- -  **sh/bash**    export OMP_NUM_THREADS=8
+ -  **sh/bash**:    export OMP_NUM_THREADS=8
 
 Here are a few environment variables:
 
