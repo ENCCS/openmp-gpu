@@ -58,7 +58,7 @@ Both approaches have their advantages and disadvantages.  Distributed machines a
 OpenMP
 ~~~~~~
 
-OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. If there no OpenMP support in the system they become comments and the code works just as any other  serial code.
+OpenMP is de facto standard for threaded based parallelism. It is relatively easy to implement. The whole technology suite contains the library routines, the compiler directives and environment variables. The parallelization is done providing "hints" (directives) about the regions of code which are targeted for parallelization. The compiler then chooses how to implement these hints as best as possible. The compiler directives are comments in Fortran and pragmas in C/C++. If there is no OpenMP support in the system they become comments and the code works just as any other  serial code.
 
 
 Execution model 
@@ -135,7 +135,7 @@ All threads inside the construct execute the same, there is not work sharing yet
               program hello
               integer :: omp_rank
             !$omp parallel 
-              print *, 'Hello world! by thread '
+              print *, 'Hello world! 
             !$omp end parallel
               end program hello
       
@@ -190,6 +190,7 @@ Example of a trivially parallelizable problem using the *loop* workshare constru
             !$omp end parallel
               end program hello
               
+            
             In this example OpenMP distributes the work among the threads by dividing the number of interations in the loop by the number of threads (default behaviour). At the end of the loop construct there is an implicit synchronization. 
 
 The constructs can be combined if one is imediatly nested inside another construct.
