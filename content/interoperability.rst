@@ -4,7 +4,7 @@ Working alongside GPU libraries
 .. questions::
 
    - My code needs to use a library, how should they work together?
-   - TODO
+   - How to use OpenMP mapped variables? 
 
 .. objectives::
 
@@ -22,7 +22,11 @@ Working alongside GPU libraries
 First heading
 -------------
 
-Some text
+OpenMP interoperability with CUDA C/C++ and CUDA Fortran.
+
+ - You can call kernels written in CUDA C/C++ or CUDA Fortran in your OpenMP programs from the host.
+ - You can use the OpenMP **USE_DEVICE_PTR** clause to pass OpenMP mapped variables to CUDA kernels that are launched from the host.
+ - You can use the OpenMP **IS_DEVICE_PTR** clause to access CUDA device attribute variables or to pass device addresses directly to target regions.
 
 Second heading
 --------------
