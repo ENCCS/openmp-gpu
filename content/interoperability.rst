@@ -5,6 +5,7 @@ Working alongside GPU libraries
 
    - My code needs to use a library, how should they work together?
    - How to use OpenMP mapped variables? 
+   - How to use CUDA or HIP device variables into OpenMP?
 
 .. objectives::
 
