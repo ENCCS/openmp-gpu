@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <math.h>
+#define NX 102400
+
+int main(void)
+{
+  double vecA[NX],vecB[NX],vecC[NX];
+  double r=0.2;
+
+/* Initialization of vectors */
+  for (int i = 0; i < NX; i++) {
+     vecA[i] = pow(r, i);
+     vecB[i] = 1.0;
+  }
+
+/* dot product of two vectors */
+  #pragma omp target data map(from:vecC)
+  {
+     #pragma omp target map(to:vecA,vecB)
+     for (int i = 0; i < NX; i++) {
+        vecC[i] = vecA[i] * vecB[i];
+     }
+
+/* Initialization of vectors again */
+     for (int i = 0; i < NX; i++) {
+        vecA[i] = 1.0;
+        vecB[i] = 1.0;
+     }
+
+     #pragma omp target map(to:vecA,vecB)
+     for (int i = 0; i < NX; i++) {
+        vecC[i] = vecC[i] + vecA[i] * vecB[i];
+     }
+  }
+  double sum = 0.0;
+  /* calculate the sum */
+  for (int i = 0; i < NX; i++) {
+    sum += vecC[i];
+  }
+  printf("The sum is: %8.6f \n", sum);
+  return 0;
+}

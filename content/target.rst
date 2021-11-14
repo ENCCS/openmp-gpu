@@ -115,59 +115,67 @@ the host to the device and the data between the host and device.
 			depend(dependence-type : list)
 
 
+.. exercise:: Exercise00: Hello world with OpenMP offloading
 
-
-
-
-
-.. challenge:: Example: ``TARGET`` construct 
 
    .. tabs::
 
       .. tab:: C/C++
 
-             .. code-block:: c
-             	:linenos:
-             	:emphasize-lines: 8
-
-			extern void init(float*, float*, int);
-			extern void output(float*, int);
-			void vec_mult(int N)
-			{
-			   int i;
-			   float p[N], v1[N], v2[N];
-			   init(v1, v2, N);
-			   #pragma omp target
-			   #pragma omp parallel for private(i)
-			   for (i=0; i<N; i++)
-			     p[i] = v1[i] * v2[i];
-			   output(p, N);
-			}
+         .. literalinclude:: exercise/ex00/ex00.c
+            :language: c
+            :linenos:
 
 
       .. tab:: Fortran
 
-             .. code-block:: fortran
-             	:linenos:
-             	:emphasize-lines: 8,13
+	 .. literalinclude:: exercise/ex00/ex00.F90                  
+	    :language: fortran
+            :linenos:
+            
 
-			subroutine vec_mult(N)
-			   integer ::  i,N
-			   real    ::  p(N), v1(N), v2(N)
+.. exercise:: Exercise01: Adding ``TARGET`` construct
 
 
-			   call init(v1, v2, N)
+   .. tabs::
 
-			   !$omp target
-			   !$omp parallel do
-			   do i=1,N
-			      p(i) = v1(i) * v2(i)	
-			   end do
-			   !$omp end target
+      .. tab:: C/C++
 
-			   call output(p, N)
-			end subroutine
-		  
+         .. literalinclude:: exercise/ex01/ex01.c
+            :language: c
+            :linenos:
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex01/ex01.F90                  
+	    :language: fortran
+            :linenos:
+            
+
+
+
+.. solution:: 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex01/solution/ex01.c
+            :language: c
+            :linenos:
+	    :emphasize-lines: 17
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex01/solution/ex01.F90                  
+	    :language: fortran
+            :linenos:
+            :emphasize-lines: 18,22
+
+
+	  
 
 
 
@@ -181,7 +189,7 @@ and parallelism.  One needs to explicitly create parallel regions on
 the target device to make efficient use of the device(s).
 
 TEAMS construct
----------------
+~~~~~~~~~~~~~~~
 
 .. challenge:: Syntax
 
@@ -245,7 +253,7 @@ without any other directives, statements or declarations in between.
 
 
 DISTRIBUTE construct
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 .. challenge:: Syntax
 
@@ -293,49 +301,194 @@ but no worksharing within the threads in one team. No implicit barrier
 at the end of the construct and no guarantee about the order the teams
 will execute.
 
-.. challenge:: Example: ``TEAMS`` and  ``DISTRIBUTE`` constructs  
+
+To further create threads within each team and distritute loop iterations across threads,
+we will use the  ``PARALLEL FOR/DO`` constructs.
+
+PARALLEL construct
+~~~~~~~~~~~~~~~~~~
+
+.. challenge:: Syntax
 
    .. tabs::
 
       .. tab:: C/C++
 
              .. code-block:: c
-             	:linenos:
-             	:emphasize-lines: 7,8
 
-			extern void init(float*, float*, int);
-			extern void output(float*, int);
-			void vec_mult(float *p, float *v1, float *v2, int N)
-			{
-			   int i;
-			   init(v1, v2, N);
-			   #pragma omp target teams map(to: v1[0:N], v2[:N]) map(from: p[0:N])
-			   #pragma omp distribute parallel for simd
-			   for (i=0; i<N; i++)
-			     p[i] = v1[i] * v2[i];
-			   output(p, N);
-			}
+		  #pragma omp parallel [clauses]
+		  	structured-block
+		  
+             .. code-block:: c
+
+	          clause:
+                  num_threads(integer-expression)
+		  default(shared | none)
+		  private(list)
+      		  firstprivate(list)
+		  shared(list)
+		  reduction(reduction-identifier : list)
 
 
       .. tab:: Fortran
 
              .. code-block:: fortran
-             	:linenos:
-             	:emphasize-lines: 5,6,10
 
-			subroutine vec_mult(p, v1, v2, N)
-			   integer ::  i
-			   real    ::  p(N), v1(N), v2(N)
-			   call init(v1, v2, N)
-			   !$omp target teams map(to: v1, v2) map(from: p)
-			   !$omp distribute parallel do simd
-			   do i=1,N
-			      p(i) = v1(i) * v2(i)	
-			   end do
-			   !$omp end target teams
+		  !$omp parallel [clauses] 
+		          structured-block
+		  !$omp end parallel
 
-			   call output(p, N)
-			end subroutine
+             .. code-block:: fortran
+
+	          clause:
+                  num_threads(integer-expression)
+		  default(private | firstprivate | shared | none)
+		  private(list)
+      		  firstprivate(list)
+		  shared(list)
+                  copyin(list)
+		  reduction(reduction-identifier : list)
+
+
+
+FOR/DO construct
+~~~~~~~~~~~~~~~~
+
+.. challenge:: Syntax
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+             .. code-block:: c
+
+		  #pragma omp for [clauses]
+		  	structured-block
+		  
+             .. code-block:: c
+
+	          clause:
+		  private(list)
+      		  firstprivate(list)
+      		  lastprivate(list)
+		  reduction(reduction-identifier : list)
+		  schedule(kind[, chunk_size])
+                  collapse(n)
+
+      .. tab:: Fortran
+
+             .. code-block:: fortran
+
+		  !$omp do [clauses] 
+		          structured-block
+		  [!$omp end do]
+
+             .. code-block:: fortran
+
+	          clause:
+		  private(list)
+      		  firstprivate(list)
+      		  lastprivate(list)
+		  reduction(reduction-identifier : list)
+		  schedule(kind[, chunk_size])
+                  collapse(n)
+
+
+
+.. keypoints::
+
+  TEAMS DISTRIBUTE construct
+    - Coarser-grained parallelism
+    - Spawns multiple teams, each with one thread
+    - Threads in different teams can’t synchronize with each othe
+
+  PARALLEL FOR/DO construct
+    - Finer-grained parallelism
+    - Spawns many threads in a team
+    - Threads in a team can synchronize with each other
+
+
+
+
+.. exercise:: Exercise02: Adding constructs for parallelism
+
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex02/ex02.c
+            :language: c
+            :linenos:
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex02/ex02.F90                  
+	    :language: fortran
+            :linenos:
+            
+
+.. solution:: 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex02/solution/ex02.c
+            :language: c
+            :linenos:
+	    :emphasize-lines: 17
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex02/solution/ex02.F90                  
+	    :language: fortran
+            :linenos:
+            :emphasize-lines: 18,22
+
+
+.. exercise:: Exercise03: ``TEAMS`` vs  ``PARALLEL`` constructs
+
+   We start from the "hello world" example, and by adding ``TEAMS`` and  ``PARALLEL`` constructs
+   to compare the differences. Furthermore, using ``num_teams`` and ``thread_limit`` to limit
+   the number of teams and threads to be generated.
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex03/ex03.c
+            :language: c
+            :linenos:
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex03/ex03.F90                  
+	    :language: fortran
+            :linenos:
+            
+
+.. solution:: 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex03/solution/ex03.c
+            :language: c
+            :linenos:
+	    :emphasize-lines: 13,14
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex03/solution/ex03.F90                  
+	    :language: fortran
+            :linenos:
+            :emphasize-lines: 15,16,20,21
 
 
 
@@ -403,7 +556,7 @@ It is convenient to use the composite construct
 
          .. literalinclude:: exercise/solution/offloading/core.cpp
                         :language: cpp
-			:emphasize-lines: 25-26
+			:emphasize-lines: 24-25
 
 
       .. tab:: Fortran
