@@ -58,7 +58,6 @@ forms of the map cluase are summarised in the following table
    +---------------------------+-----------------------------------------------+
    
 
-	
 If the variables are not explicitly mapped, the compiler will do it implicitly:
   - Since v4.5, scalar is mapped as firstprivate, and the variable is not copied back to the host
   - non-scalar variables are mapped with a map-type tofrom
@@ -74,53 +73,47 @@ If the variables are not explicitly mapped, the compiler will do it implicitly:
 
 
 
-.. challenge:: Example: implicit data mapping 
+.. challenge:: Exercise04: explicit and implicit data mapping 
+
+   1. explicitly adding the ``map`` clauses for data transfer between the host and device 
+   2. offloading the part where it "calculates the sum"
 
    .. tabs::
 
       .. tab:: C/C++
 
-             .. code-block:: c
-             	:linenos:
-             	:emphasize-lines: 8
-
-			extern void init(float*, float*, int);
-			extern void output(float*, int);
-			void vec_mult(int N)
-			{
-			   int i;
-			   float p[N], v1[N], v2[N];
-			   init(v1, v2, N);
-			   #pragma omp target
-			   #pragma omp parallel for private(i)
-			   for (i=0; i<N; i++)
-			     p[i] = v1[i] * v2[i];
-			   output(p, N);
-			}
+         .. literalinclude:: exercise/ex04/ex04.c
+            :language: c
+            :linenos:
 
 
       .. tab:: Fortran
 
-             .. code-block:: fortran
-             	:linenos:
-             	:emphasize-lines: 8,13
-
-			subroutine vec_mult(N)
-			   integer ::  i,N
-			   real    ::  p(N), v1(N), v2(N)
+	 .. literalinclude:: exercise/ex04/ex04.F90                  
+	    :language: fortran
+            :linenos:
 
 
-			   call init(v1, v2, N)
+.. solution:: 
 
-			   !$omp target
-			   !$omp parallel do
-			   do i=1,N
-			      p(i) = v1(i) * v2(i)	
-			   end do
-			   !$omp end target
+   .. tabs::
 
-			   call output(p, N)
-			end subroutine
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex04/solution/ex04.c
+            :language: c
+            :linenos:
+	    :emphasize-lines: 17,24
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex04/solution/ex04.F90                 
+	    :language: fortran
+            :linenos:
+            :emphasize-lines: 18,26,30
+
+
 
 Data region
 -----------
@@ -130,7 +123,7 @@ storage on the device are clasiffied as two categories: structured
 data region and unstructured data region.
 
 Structured Data Regions
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``TARGET DATA`` construct is used to create a structured data region
 which is convenient for providing persistent data on the device which
@@ -174,75 +167,8 @@ could be used for subseqent target constructs.
 
 
 
-
-
-.. challenge:: Example: ``TARGET DATA`` structured region 
-
-   .. tabs::
-
-      .. tab:: C/C++
-
-             .. code-block:: c
-             	:linenos:
-             	:emphasize-lines: 8,10,15
-
-			extern void init(float*, float*, int);
-			extern void init_again(float*, float*, int);
-			extern void output(float*, int);
-			void vec_mult(float *p, float *v1, float *v2, int N)
-			{
-			   int i;
-			   init(v1, v2, N);
-			   #pragma omp target data map(from: p[0:N])
-			   {
-			      #pragma omp target map(to: v1[:N], v2[:N])
-			      #pragma omp parallel for
-			      for (i=0; i<N; i++)
-			        p[i] = v1[i] * v2[i];
-			      init_again(v1, v2, N);
-			      #pragma omp target map(to: v1[:N], v2[:N])
-			      #pragma omp parallel for
-			      for (i=0; i<N; i++)
-			        p[i] = p[i] + (v1[i] * v2[i]);
-			   }
-			   output(p, N);
-			}
-
-
-
-      .. tab:: Fortran
-
-             .. code-block:: fortran
-             	:linenos:
-             	:emphasize-lines: 5,6,12
-
-			subroutine vec_mult(p, v1, v2, N)
-			   real    ::  p(N), v1(N), v2(N)
-			   integer ::  i
-			   call init(v1, v2, N)
-			   !$omp target data map(from: p)
-			      !$omp target map(to: v1, v2 )
-			         !$omp parallel do
-			         do i=1,N
-			            p(i) = v1(i) * v2(i)
-			         end do
-			      !$omp end target
-			      call init_again(v1, v2, N)
-			      !$omp target map(to: v1, v2 )
-			         !$omp parallel do
-			         do i=1,N
-			            p(i) = p(i) + v1(i) * v2(i)
-			         end do
-			      !$omp end target
-			   !$omp end target data
-			   call output(p, N)
-			end subroutine	
-
-
-
-
 Unstructured Data Regions
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``TARGET DATA`` construct however is inconvenient in real applications.
 The unstructured data constructs (``TARGET ENTER DATA`` and ``TARGET EXIT DATA``) 
@@ -307,127 +233,9 @@ have much more freedom in creating and deleting of data on the device at any app
 
 
 
-DECLARE TARGET construct
-------------------------
-The ``DECLARE TARGET`` construct is used to create a device executable version of the subroutine/function. 
-Another typical usage of   ``DECLARE TARGET`` construct is to define global variables to be accessed on the devices.
-
-
-.. challenge:: Syntax
-
-   .. tabs::
-
-      .. tab:: C/C++
-
-             .. code-block:: c
-
-		  #pragma omp declare target 
-		  	declarations-definition-seq
-		  #pragma omp end declare target
-
-		  or
-
-                  #pragma omp declare target (extended-list)
-
-                  or
-
-		  #pragma omp declare target clause [clauses]
-
-             .. code-block:: c
-
-	          clause:
-                  to(extended-list)
-                  link(list)
-
-
-      .. tab:: Fortran
-
-             .. code-block:: fortran
-
-                  !$omp declare target (extended-list)
-
-		  or
-
-		  !$omp declare target [clauses]
-
-             .. code-block:: fortran
-
-	          clause:
-                  to(extended-list)
-                  link(list)
-
-.. note::
-
-	extended-list: A comma-separated list of named variables, procedure names, and named common blocks.
-
-
-
-
-.. challenge:: Example: ``DECLARE TARGET`` 
-
-   .. tabs::
-
-      .. tab:: C/C++
-
-             .. code-block:: c
-             	:linenos:
-             	:emphasize-lines: 2-6
-
-			#define N 10000
-			#pragma omp declare target
-			float Q[N][N];
-			float Pfun(const int i, const int k)
-			{ return Q[i][k] * Q[k][i]; }
-			#pragma omp end declare target
-			float accum(int k)
-			{
-			    float tmp = 0.0;
-			    #pragma omp target update to(Q)
-			    #pragma omp target map(tofrom: tmp)
-			    #pragma omp parallel for reduction(+:tmp)
-			    for(int i=0; i < N; i++)
-			        tmp += Pfun(i,k);
-			    return tmp;
-			}
-
-
-      .. tab:: Fortran
-
-             .. code-block:: fortran
-             	:linenos:
-             	:emphasize-lines: 2-11
-
-			module my_global_array
-			!$omp declare target (N,Q)
-			integer, parameter :: N=10
-			real               :: Q(N,N)
-			contains
-			function Pfun(i,k)
-			!$omp declare target
-			real               :: Pfun
-			integer,intent(in) :: i,k
-			   Pfun=(Q(i,k) * Q(k,i))
-			end function
-			end module
-
-			function accum(k) result(tmp)
-			use my_global_array
-			real    :: tmp
-			integer :: i, k
-			   tmp = 0.0e0
-			   !$omp target map(tofrom: tmp)
-			   !$omp parallel do reduction(+:tmp)
-			   do i=1,N
-			      tmp = tmp + Pfun(k,i)
-			   end do
-			   !$omp end target
-			end function
-
-
-
-
 TARGET UPDATE construct
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
+
 The ``TARGET UPDATE`` construct is used to keep the variable consistent between the host and the device.
 Data can be updated within a target regions  with the transfer direction specified in the clause.
 
@@ -473,6 +281,82 @@ Data can be updated within a target regions  with the transfer direction specifi
                   motion-clause:
 		  to(list)
 		  from(list)
+
+
+
+.. challenge:: Exercise05: ``TARGET DATA`` structured region  
+
+   Create a data region using ``TARGET DATA`` and add ``map`` clauses for data transfer.
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex05/ex05.c
+            :language: c
+            :linenos:
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex05/ex05.F90                  
+	    :language: fortran
+            :linenos:
+
+.. solution:: 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex05/solution/ex05.c
+            :language: c
+            :linenos:
+	    :emphasize-lines: 17,18,19,30,34
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex05/solution/ex05.F90                 
+	    :language: fortran
+            :linenos:
+            :emphasize-lines: 18,19,31,36
+
+
+
+.. challenge:: Exercise06:  ``TARGET UPDATE``
+
+   Trying to figure out the variable values on host and device at each check point.
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/ex06/ex06.c
+            :language: c
+            :linenos:
+
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/ex06/ex06.F90                  
+	    :language: fortran
+            :linenos:
+
+    
+      .. tab:: Solution
+
+		+-------------+---------+-----------+
+		|check point  |x on host|x on device|
+		+=============+=========+===========+
+		|check point 1|  10     |  0        | 
+		+-------------+---------+-----------+
+		|check point2 |  10     |  0        | 
+		+-------------+---------+-----------+
+		|check point3 |  10     | 10        | 
+	        +-------------+---------+-----------+
+
+   
 
 
 
