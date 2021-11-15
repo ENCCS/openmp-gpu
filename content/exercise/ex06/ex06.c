@@ -3,7 +3,7 @@ int main(void)
 {
   int x = 0;
 
-  #pragma omp target data map(toform:x)
+  #pragma omp target data map(tofrom:x)
   {
 /* check point 1 */
     x = 10;                        
