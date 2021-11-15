@@ -233,7 +233,7 @@ You will see output something like::
   nvc++ -g -O3 -fopenmp -Wall -I../common -c io.cpp -o io.o
   nvc++ -g -O3 -fopenmp -Wall -I../common main.o core.o setup.o utilities.o io.o ../common/pngwriter.o -o heat_serial  -lpng
 
-which produces an executal program called ``heat_serial``.
+which produces an executable program called ``heat_serial``.
 
 Running the code
 ----------------
