@@ -41,7 +41,7 @@ program heat_solve
 
   call enter_data(current, previous)
 
-  do iter = 1, ns_eps
+  do iter = 1, nsteps
      call evolve(current, previous, a, dt)
      if (mod(iter, image_interval) == 0) then
         call update_host(current)

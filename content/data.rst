@@ -349,7 +349,7 @@ Data can be updated within a target regions  with the transfer direction specifi
 		+-------------+---------+-----------+
 		|check point  |x on host|x on device|
 		+=============+=========+===========+
-		|check point 1|  10     |  0        | 
+		|check point1 |   0     |  0        | 
 		+-------------+---------+-----------+
 		|check point2 |  10     |  0        | 
 		+-------------+---------+-----------+
