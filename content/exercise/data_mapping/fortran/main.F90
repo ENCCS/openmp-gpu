@@ -39,17 +39,20 @@ program heat_solve
 
   start =  omp_get_wtime()
 
+  ! copy data to device
   call enter_data(current, previous)
 
   do iter = 1, nsteps
      call evolve(current, previous, a, dt)
      if (mod(iter, image_interval) == 0) then
+        ! update data on host for output
         call update_host(current)
         call write_field(current, iter)
      end if
      call swap_fields(current, previous)
   end do
 
+  ! copy data back to host
   call exit_data(current, previous)
 
   stop = omp_get_wtime()

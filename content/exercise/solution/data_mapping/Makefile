@@ -5,11 +5,10 @@ endif
 HAVE_PNG=0
 ifeq ($(HAVE_PNG),1)
 PNG_LIBS=-lpng -lz -lc -lrt
-PNG_LDFLAGS=-L/usr/lib -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib 
+PNG_LDFLAGS=-L/usr/lib -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib
 endif
 
 COMMONDIR=../common
-
 
 ifeq ($(COMP),gnu)
 CXX=g++
@@ -22,7 +21,7 @@ endif
 ifeq ($(COMP),nv)
 CXX=nvc++
 CC=nvc
-CCFLAGS=-O3 -mp=gpu -Minfo=mp -I$(COMMONDIR) 
+CCFLAGS=-O3 -mp=gpu -Minfo=mp -I$(COMMONDIR)
 LDFLAGS=
 LIBS=
 endif
@@ -50,7 +49,7 @@ io.o: io.cpp heat.h
 main.o: main.cpp heat.h
 
 $(OBJS_PNG): C_COMPILER := $(CC)
-$(OBJS_PNG): CCFLAGS += -DHAVE_PNG=$(HAVE_PNG) -I/usr/include -I/usr/local/include 
+$(OBJS_PNG): CCFLAGS += -DHAVE_PNG=$(HAVE_PNG) -I/usr/include -I/usr/local/include
 $(OBJS): C_COMPILER := $(CXX)
 
 $(EXE): $(OBJS) $(OBJS_PNG)

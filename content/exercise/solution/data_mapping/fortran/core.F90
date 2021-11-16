@@ -31,7 +31,7 @@ contains
     ! Determine the temperature field at next time step As we have
     ! fixed boundary conditions, the outermost gridpoints are not
     ! updated.
-    !$omp target teams distribute parallel do 
+    !$omp target teams distribute parallel do  
     do j = 1, ny
        do i = 1, nx
           currdata(i, j) = prevdata(i, j) + a * dt * &
@@ -55,6 +55,8 @@ contains
     currdata => curr%data
     prevdata => prev%data
 
+  ! adding data mapping here
+
     !$omp target enter data map(to: currdata, prevdata)
   end subroutine enter_data
 
@@ -69,6 +71,8 @@ contains
     currdata => curr%data
     prevdata => prev%data
 
+  ! adding data mapping here
+
     !$omp target exit data map(from: currdata, prevdata)
   end subroutine exit_data
 
@@ -80,6 +84,8 @@ contains
     real(kind=dp), pointer, contiguous :: tempdata(:,:)
 
     tempdata => temperature%data
+
+  ! adding data mapping here
 
     !$omp target update from(tempdata)
   end subroutine update_host

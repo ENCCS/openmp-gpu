@@ -5,9 +5,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include <omp.h>
-
-
 #include "heat.h"
 
 
@@ -41,12 +38,12 @@ void initialize(int argc, char *argv[], field *current,
         break;
     case 2:
         /* Read initial field from a file */
-        strncpy(input_file, argv[1], 64);
+        strncpy(input_file, argv[1], 63);
         read_file = 1;
         break;
     case 3:
         /* Read initial field from a file */
-        strncpy(input_file, argv[1], 64);
+        strncpy(input_file, argv[1], 63);
         read_file = 1;
 
         /* Number of time steps */
@@ -86,9 +83,10 @@ void generate_field(field *temperature)
 
     /* Allocate the temperature array, note that
      * we have to allocate also the ghost layers */
-    temperature->data = new double [(temperature->nx + 2) * (temperature->ny + 2)];
+    int newSize = (temperature->nx + 2) * (temperature->ny + 2);
+    temperature->data.resize(newSize, 0.0);
 
- 
+
     /* Radius of the source disc */
     radius = temperature->nx / 6.0;
     for (int i = 0; i < temperature->nx + 2; i++) {
@@ -111,33 +109,20 @@ void generate_field(field *temperature)
         temperature->data[i * (temperature->ny + 2) + temperature->ny + 1] = 70.0;
     }
 
-
-        for (int j = 0; j < temperature->ny + 2; j++) {
-            temperature->data[j] = 85.0;
-        }
-
-        for (int j = 0; j < temperature->ny + 2; j++) {
-            temperature->data[(temperature->nx + 1) * (temperature->ny + 2) + j] = 5.0;
-        }
-   
+    for (int j = 0; j < temperature->ny + 2; j++) {
+        temperature->data[j] = 85.0;
+    }
+    for (int j = 0; j < temperature->ny + 2; j++) {
+        temperature->data[(temperature->nx + 1) * (temperature->ny + 2) + j] = 5.0;
+    }
 }
 
 /* Set dimensions of the field. Note that the nx is the size of the first
  * dimension and ny the second. */
 void set_field_dimensions(field *temperature, int nx, int ny)
 {
-
     temperature->dx = DX;
     temperature->dy = DY;
     temperature->nx = nx;
     temperature->ny = ny;
 }
-
-
-/* Deallocate the 2D arrays of temperature fields */
-void finalize(field *temperature1, field *temperature2)
-{
-    delete[] temperature1->data;
-    delete[] temperature2->data; 
-}
-

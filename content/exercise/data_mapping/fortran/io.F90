@@ -23,6 +23,7 @@ contains
     allocate(full_data(curr%nx, curr%ny))
     ! Copy rand #0 data to the global array
     full_data(1:curr%nx, 1:curr%ny) = curr%data(1:curr%nx, 1:curr%ny)
+
     write(filename,'(A5,I4.4,A4,A)')  'heat_', iter, '.png'
     stat = save_png(full_data, curr%nx, curr%ny, filename)
     deallocate(full_data)
