@@ -96,7 +96,8 @@ the previous step at the same location *and* four adjacent locations:
 
    There's 64 locations and 20 steps and each does the same 10
    operations, so :math:`10*8*8*20 = 12800` arithmetic operations
-   total.
+   total. However, that assumes that there are no boundaries to
+   the field, which is unrealistic!
 
 Spatial boundary conditions
 ---------------------------
