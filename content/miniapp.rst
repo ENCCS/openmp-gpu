@@ -104,7 +104,7 @@ Spatial boundary conditions
 Something must happen at the edges of the grid so that the stencil does a valid operation.
 One alternative is to ignore the contribution of points that are outside the grid.
 However, this tends to complicate the implementation of the stencil and is also often non-physical.
-In a real problem, there is always somethign outside the grid!
+In a real problem, there is always something outside the grid!
 Sometimes it makes sense to have periodic boundaries to the grid, but that is complex to implement.
 In this mini-app, we will have a ring of data points around the grid.
 Those will have a fixed value that is not updated by the stencil,
@@ -156,7 +156,7 @@ Next, the routine that applies the stencil to the previous field to compute the 
 
          .. literalinclude:: code-samples/serial/fortran/core.F90
                         :language: fortran
-                        :lines: 7-38
+                        :lines: 7-43
 
 Then the routine that handles the main loop over time steps:
                                 

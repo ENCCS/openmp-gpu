@@ -24,8 +24,8 @@ program dotproduct
 
   ! Initialization of vectors again
   do i = 1, nx
-     vecA(i) = r**(i-1)
-     vecB(i) = 1.0
+     vecA(i) = 0.5 
+     vecB(i) = 2.0
   end do
 
   !$omp target map(to:vecA,vecB)

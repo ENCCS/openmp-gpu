@@ -14,7 +14,7 @@ int main(void)
   }
 
 /* dot product of two vectors */
-  #pragma omp target teams distribute
+  #pragma omp target teams distribute parallel for
   for (int i = 0; i < NX; i++) {
      vecC[i] = vecA[i] * vecB[i];
   }

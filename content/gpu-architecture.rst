@@ -246,7 +246,7 @@ Shared Memory Access
 .. figure:: img/shared_mem.png
    :align: center
 
-The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the lcoal memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.
+The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the local memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.
 
 Example of a code using shared memory to perform transpose of a two dimensional array. 
 
@@ -370,11 +370,11 @@ Without Unified Memory there are two sets of points (one for host and one for de
 Streams
 -------
 
-A *stream* in CUDA is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most commong use of non-default streams is for overlapping computations and data movements. 
+A *stream* in CUDA is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most common use of non-default streams is for overlapping computations and data movements. 
 
 Overlapping Computations and Data Movements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that teh total amount of floping operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel execution we can image two scenarios like in the figure below.
+The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let's consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in *N* parts, each independednt of each other and that the total amount of the floating point operations per part decreases by *1/N*. If the GPU overlapping data transfers and kernel execution we can image two scenarios like in the figure below.
 
 
 .. figure:: img/C2050Timeline.png
@@ -385,7 +385,7 @@ In the first one all data is copied in one transfer to GPU. Next it is processed
 
 Writing Programs for GPUs
 -------------------------
-In order to take advantage of the GPUs computing power the programs have to be written swpecifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
+In order to take advantage of the GPUs computing power the programs have to be written specifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
 
 1. Frameworks like Kokkos or AMReX, to automate the parallelization
 2. Directive based programming like **OpenMP** or OpenACC,  the existing serial code is annotated to pinpoint accelerator-offloadable regions

@@ -14,20 +14,20 @@ int main(void)
   }
 
 /* dot product of two vectors */
-  #pragma omp target data map(from:vecC)
+  #pragma omp target data map(from:vecC[0:NX])
   {
-     #pragma omp target map(to:vecA,vecB)
+     #pragma omp target map(to:vecA[0:NX],vecB[0:NX])
      for (int i = 0; i < NX; i++) {
         vecC[i] = vecA[i] * vecB[i];
      }
 
 /* Initialization of vectors again */
      for (int i = 0; i < NX; i++) {
-        vecA[i] = 1.0;
-        vecB[i] = 1.0;
+        vecA[i] = 0.5;
+        vecB[i] = 2.0;
      }
 
-     #pragma omp target map(to:vecA,vecB)
+     #pragma omp target map(to:vecA[0:NX],vecB[0:NX])
      for (int i = 0; i < NX; i++) {
         vecC[i] = vecC[i] + vecA[i] * vecB[i];
      }

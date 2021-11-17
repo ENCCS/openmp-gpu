@@ -12,7 +12,7 @@ program hello
   print *, "Number of available devices", num_devices
 
   !$omp target map(nteams,nthreads)
-  !$omp teams num_teams(10) thread_limit(4)
+  !$omp teams num_teams(2) thread_limit(3)
   !$omp parallel
     initial_device = omp_is_initial_device()
     nteams= omp_get_num_teams()

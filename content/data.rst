@@ -224,7 +224,7 @@ have much more freedom in creating and deleting of data on the device at any app
 
   Structured Data Region
     - start and end points within a single subroutine
-    - Memory exist within the data region
+    - Memory exists within the data region
 
   Unstructured Data Region
     - multiple start and end points across different subroutines
@@ -320,7 +320,7 @@ Data can be updated within a target regions  with the transfer direction specifi
 	 .. literalinclude:: exercise/ex05/solution/ex05.F90                 
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 18,19,31,36
+            :emphasize-lines: 18,19,23,31,36
 
 
 
@@ -389,14 +389,15 @@ Optimize Data Transfers
 
          .. literalinclude:: exercise/solution/data_mapping/core.cpp
                         :language: cpp
-			:emphasize-lines: 59-60,74-75,88
+			:emphasize-lines: 24,51-52,67-68,82
+                        :linenos:
 
 
       .. tab:: Fortran
 
          .. literalinclude:: exercise/solution/data_mapping/fortran/core.F90
                         :language: fortran
-                        :emphasize-lines: 58,72,84
-
+                        :emphasize-lines: 34,59,75,89
+                        :linenos:
 
 

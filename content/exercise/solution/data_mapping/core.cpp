@@ -22,7 +22,6 @@ void evolve(field *curr, field *prev, double a, double dt)
   double dx2 = prev->dx * prev->dx;
   double dy2 = prev->dy * prev->dy;
   #pragma omp target teams distribute parallel for 
-
   for (int i = 1; i < nx + 1; i++) {
     for (int j = 1; j < ny + 1; j++) {
       int ind = i * (ny + 2) + j;
@@ -49,7 +48,6 @@ void enter_data(field *curr, field *prev)
     ny = curr->ny;
 
 // adding data mapping here
-
     #pragma omp target enter data \
     map(to: currdata[0:(nx+2)*(ny+2)], prevdata[0:(nx+2)*(ny+2)])
 }
@@ -66,7 +64,6 @@ void exit_data(field *curr, field *prev)
     ny = curr->ny;
 
 // adding data mapping here
-    
     #pragma omp target exit data \
     map(from: currdata[0:(nx+2)*(ny+2)], prevdata[0:(nx+2)*(ny+2)])
 }
@@ -82,6 +79,5 @@ void update_host(field *temperature)
     ny = temperature->ny;
 
 // adding data mapping here
-    
     #pragma omp target update from(data[0:(nx+2)*(ny+2)])
 }
