@@ -14,7 +14,7 @@ int main(void)
   }
 
 /* dot product of two vectors */
-  #pragma omp target teams distribute map(from:vecC) map(to:vecA,vecB)
+  #pragma omp target teams distribute map(from:vecC[0:NX]) map(to:vecA[0:NX],vecB[0:NX])
   for (int i = 0; i < NX; i++) {
      vecC[i] = vecA[i] * vecB[i];
   }

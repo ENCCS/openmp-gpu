@@ -56,8 +56,8 @@ contains
     prevdata => prev%data
 
   ! adding data mapping here
-
     !$omp target enter data map(to: currdata, prevdata)
+
   end subroutine enter_data
 
   ! End a data region and copy temperature fields back to the host
@@ -72,8 +72,8 @@ contains
     prevdata => prev%data
 
   ! adding data mapping here
-
     !$omp target exit data map(from: currdata, prevdata)
+
   end subroutine exit_data
 
   ! Copy a temperature field from the device to the host
@@ -86,8 +86,8 @@ contains
     tempdata => temperature%data
 
   ! adding data mapping here
-
     !$omp target update from(tempdata)
+
   end subroutine update_host
 
 end module core

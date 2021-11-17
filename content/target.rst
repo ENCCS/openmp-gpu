@@ -50,7 +50,7 @@ The execution on the device is host-centric
 
 1.the host creates the data environments on the device(s)   
 
-2.the host maps data to the device data environment, which is data movement to the device  
+2.the host maps data to the device data environment 
 
 3.the host offloads OpenMP target regions to the target device to be  executed  
 
@@ -400,7 +400,7 @@ FOR/DO construct
   TEAMS DISTRIBUTE construct
     - Coarser-grained parallelism
     - Spawns multiple teams, each with one thread
-    - Threads in different teams can’t synchronize with each othe
+    - Threads in different teams can’t synchronize with each other
 
   PARALLEL FOR/DO construct
     - Finer-grained parallelism
@@ -498,7 +498,7 @@ Composite directive
 It is convenient to use the composite construct
 
   - the code is more portable 
-  - let the compiler figure out the loop tiling since each compiler
+  - let the compiler figures out the loop tiling since each compiler
     supports different levels of parallelism
   - possible to reach good performance without composite directives
 
@@ -511,7 +511,7 @@ It is convenient to use the composite construct
 
              .. code-block:: c
 
-		  #pragma omp target teams distribute parallel for simd [clauses]
+		  #pragma omp target teams distribute parallel for [clauses]
 		  	for-loops
 		  
 
@@ -520,9 +520,9 @@ It is convenient to use the composite construct
 
              .. code-block:: fortran
 
-		  !$omp target teams distribute parallel do simd [clauses]
+		  !$omp target teams distribute parallel do [clauses]
 		          do-loops
-		  [!$omp end target teams distribute parallel do simd]
+		  [!$omp end target teams distribute parallel do ]
 
 
 
@@ -532,8 +532,11 @@ It is convenient to use the composite construct
    We will start from the serial version of the heat diffusion and step by step
    add the directives for offloading and parallelism on the target device.  Compare 
    the performance to understand the effects of different directives. We will 
-   focus on the core evoluton operation only for now, i.e. subroutine evolve 
+   focus on the core operation only for now, i.e. subroutine evolve 
    in the file core.cpp or core.F90.  
+   
+   For C/C++, you need to add a data mapping clause 
+   ``map(currdata[0:(nx+2)*(ny+2)],prevdata[0:(nx+2)*(ny+2)])``
 
    step 1: adding the ``TARGET`` construct 
 

@@ -15,11 +15,11 @@ program dotproduct
   end do
 
   ! Dot product of two vectors 
-  !$omp target teams distribute 
+  !$omp target teams distribute parallel do 
   do i = 1, nx
      vecC(i) =  vecA(i) * vecB(i)
   end do
-  !$omp end target teams distribute
+  !$omp end target teams distribute parallel do
 
   sum = 0.0
   ! Calculate the sum 
