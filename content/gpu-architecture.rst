@@ -46,7 +46,7 @@ Achieving performance has been based on two main strategies over the years:
 Why use GPUs?
 ~~~~~~~~~~~~~
 
-The Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator. 
+The Graphics processing units (GPU) have been the most common accelerators during the last few years. The term *GPU* sometimes is used interchangeably with the term *accelerator*. 
 
 .. figure:: img/comparison.png
    :align: center
@@ -169,47 +169,6 @@ A warp (wave) is a group of GPU threads which are grouped physically. In CUDA th
 CUDA C/HIP code example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-
-.. typealong:: Vector addition on GPU
-
-   .. tabs::
-
-      .. tab:: Cuda C
-         
-         .. code-block:: C++
-             
-            ...
-
-            int *a_d,*b_d,*c_d;
-            cudaMalloc((void **)&a_d,Nbytes);
-            cudaMalloc((void **)&b_d,Nbytes);
-            cudaMalloc((void **)&c_d,Nbytes);
-
-            cudaMemcpy(a_d,a,nBytes,cudaMemcpyHostToDevice);
-            cudaMemcpy(b_d,b,nBytes,cudaMemcpyHostToDevice);
-
-            vecAdd<<<gridSize,blockSize>>>(a_d,b_d,c_d,N);
-
-            cudaDeviceSynchronize();
-                                
-      .. tab:: HIP
-         
-         .. code-block:: C++
-            
-            ...
-
-            int *a_d,*b_d,*c_d;
-            hipMalloc((void **)&a_d,Nbytes);
-            hipMalloc((void **)&b_d,Nbytes);
-            hipMalloc((void **)&c_d,Nbytes);
-
-            hipMemcpy(a_d,a,Nbytes,hipMemcpyHostToDevice));
-            hipMemcpy(b_d,b,Nbytes,hipMemcpyHostToDevice));
-
-            hipLaunchKernelGGL(vecAdd, dim3(gridSize), dim3(blockSize), 0, 0, a_d,b_d,c_d,N);
-          
-            hipDeviceSynchronize();
-
 .. code-block:: C++
    
    __global__ void vecAdd(int *a_d,int *b_d,int *c_d,int N)
@@ -230,8 +189,12 @@ Memory types
 
 Understanding the basic memory architecture is criticall in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the **Global Memory**.  This is accessible by all active threads. Each thread is allocated a set of *Registers*, and it cannot access registers that are not parts of that set.  A kernel generally stores frequently used variables that are private to each thread in registers. The cost of accessing variables from registers is less than that required to access variables from the global memory. There is a maximum of registers available for each thread, if the limit is exceed the values will be spilled. The *Shared Memory* is another fast type of memory. All threads of a block can access its shared memory and it can  can be used for inter-thread communication or as user controled cached. In addition to these,  memories with special access pattern (*Costant*, *Texture*, *Surface*) are also provided. 
 
-Advance topics
---------------
+Advanced topics
+---------------
+
+OpenMP exposes high-level techniques that let you write relatively simple code to take advantage of powerful capabilities of the GPUs.
+These mostly relate to how to move data, avoid moving data, and where to store it.
+So that we have an appreciation of how this can work, some of these concepts are introduced now.
 
 Global Memory Access
 ~~~~~~~~~~~~~~~~~~~~
@@ -248,129 +211,15 @@ Shared Memory Access
 
 The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the local memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.
 
-Example of a code using shared memory to perform transpose of a two dimensional array. 
-
-.. code-block:: C++
-
-   __global__ void transpose_kernel_naive(float *in, float *out, int width, int height) 
-   {
-   int x_index = blockIdx.x * tile_dim + threadIdx.x;
-   int y_index = blockIdx.y * tile_dim + threadIdx.y;
-
-   int in_index = y_index * width + x_index;
-   int out_index = x_index * height + y_index;
-
-   out[out_index] = in[in_index]; //the writing is uncoalesced. very inefficient
-   }
-   
-   const static int tile_dim=32; // for maximum perfomarnce this should be equal to warp (wave) size ?
-   __global__ void transpose_lds_kernel(float *in, float *out, int width,
-                                     int height) {
-   __shared__ float tile[tile_dim][tile_dim];
-
-   int x_tile_index = blockIdx.x * tile_dim;
-   int y_tile_index = blockIdx.y * tile_dim;
-
-   int in_index = (y_tile_index + threadIdx.y) * width  + (x_tile_index + threadIdx.x);
-   int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
-
-   tile[threadIdx.y][threadIdx.x] = in[in_index];
-
-   __syncthreads();
-
-   out[out_index] = tile[threadIdx.x][threadIdx.y];
-   }
-
-Using shared memory the programmer ensures that both read and writes to the global arrays are coalesced. 
-
-In other situations like the n-body problem type of interaction the shared memory can be used to avoid multiple loads of the same data from the memory:
-
-.. code-block:: C++
-
-   __global__ void
-   calculate_forces(void *devX, void *devA)
-   {
-      extern __shared__ float4[] shPosition;
-      float4 *globalX = (float4 *)devX; float4 *globalA = (float4 *)devA;
-      float4 myPosition;
-      int i, tile;
-      float3 acc = {0.0f, 0.0f, 0.0f};
-      int gtid = blockIdx.x * blockDim.x + threadIdx.x;
-      myPosition = globalX[gtid];
-      for (i = 0, tile = 0; i < N; i += p, tile++) {
-             int idx = tile * blockDim.x + threadIdx.x;
-             shPosition[threadIdx.x] = globalX[idx];
-             __syncthreads();
-            for (i = 0; i < blockDim.x; i++) {
-               accel = bodyBodyInteraction(myPosition, shPosition[i], accel);
-            }
-            __syncthreads();
-      }
-     // Save the result in global memory for the integration step.
-     float4 acc4 = {acc.x, acc.y, acc.z, 0.0f};
-     globalA[gtid] = acc4;
-   }
-
 Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
    
-The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explcit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. Below there are CUDA examples codes for without and with unified memory access.
-
-
-.. typealong:: Vector addition on GPU
-
-   .. tabs::
-
-      .. tab:: No UM
-         
-         .. code-block:: C++
-             
-            ...
-
-            __global__ void AplusB(int *ret, int a, int b) {
-               ret[threadIdx.x] = a + b + threadIdx.x;
-            }
-            int main() {
-            int *ret;
-            cudaMalloc(&ret, 1000 * sizeof(int));
-            AplusB<<< 1, 1000 >>>(ret, 10, 100);
-            int *host_ret = (int *)malloc(1000 * sizeof(int));
-            cudaMemcpy(host_ret, ret, 1000 * sizeof(int), cudaMemcpyDefault);
-            for(int i = 0; i < 1000; i++)
-                   printf("%d: A+B = %d\n", i, host_ret[i]);
-            free(host_ret);
-            cudaFree(ret);
-            return 0;
-            }
-                                
-      .. tab:: with UM
-         
-         .. code-block:: C++
-            
-            ...
-
-            __global__ void AplusB(int *ret, int a, int b) {
-               ret[threadIdx.x] = a + b + threadIdx.x;
-            }
-            int main() {
-            int *ret;
-            cudaMallocManaged(&ret, 1000 * sizeof(int));
-            AplusB<<< 1, 1000 >>>(ret, 10, 100);
-            cudaDeviceSynchronize();
-            for(int i = 0; i < 1000; i++)
-            printf("%d: A+B = %d\n", i, ret[i]);
-            cudaFree(ret);
-            return 0;
-           }
-
-
-Without Unified Memory there are two sets of points (one for host and one for device memory space) and if the data is initialized on the host it requires a copy operation. Also in the case of the no UM the kernel calling the kernel with the host pointers would results in the code failing. 
-
+The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explcit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. The OpenMP runtime may be able to take advantage of this for you.
 
 Streams
 -------
 
-A *stream* in CUDA is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most common use of non-default streams is for overlapping computations and data movements. 
+A *stream* is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most common use of non-default streams is for overlapping computations and data movements. 
 
 Overlapping Computations and Data Movements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
