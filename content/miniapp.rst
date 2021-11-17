@@ -215,14 +215,14 @@ type `make` and it will build and run for you.
 
          .. code-block:: bash
             
-            cd serial
+            cd content/code-samples/serial
             make
                                 
       .. tab:: Fortran
 
          .. code-block:: bash
             
-            cd serial/fortran
+            cd content/code-samples/serial/fortran
             make
 
 You will see output something like::
@@ -264,7 +264,7 @@ You can see the output on the terminal, like::
   Iterations took 0.426 seconds.
   Average temperature: 58.065097
 
-This report will help us check whether our attempts to optimize made the code faster while keepint it correct.
+This report will help us check whether our attempts to optimize made the code faster while keeping it correct.
 
 Initial and boundary conditions
 -------------------------------
