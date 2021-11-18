@@ -214,7 +214,7 @@ The shared memory is an on-chip memory with much higher bandwidth and much lower
 Unified Memory Access
 ~~~~~~~~~~~~~~~~~~~~~~
    
-The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explcit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. The OpenMP runtime may be able to take advantage of this for you.
+The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explicit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. The OpenMP runtime may be able to take advantage of this for you.
 
 Streams
 -------
@@ -229,26 +229,24 @@ The simplest CUDA program consists of three steps: copying the memory from host 
 .. figure:: img/C2050Timeline.png
    :align: center
    
-In the first one all data is copied in one transfer to GPU. Next it is processed doing, then in the last step the results are copied to the host, again in one transfer. In the second one the data is splitteed in 4 parts. Each part is transfered from the host to the deiviced, processed and then the results are transfered back to the host. We can see that there is ovelap between copying from host to device, execution, the copying  from the device to the host. 
-
+In the first one all data is copied in one transfer to GPU. Next it is processed doing, then in the last step the results are copied to the host, again in one transfer. In the second one the data is split into 4 parts. Each part is transfered from the host to the device, processed and then the results are transfered back to the host. We can see that there is ovelap between copying from host to device, execution, the copying  from the device to the host. 
 
 Writing Programs for GPUs
 -------------------------
-In order to take advantage of the GPUs computing power the programs have to be written specifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
+In order to take advantage of the GPUs computing power, the programs have to be written specifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:
 
 1. Frameworks like Kokkos or AMReX, to automate the parallelization
 2. Directive based programming like **OpenMP** or OpenACC,  the existing serial code is annotated to pinpoint accelerator-offloadable regions
-
 3. native GPU programming CUDA, HIP, or OpenCL, SYCL 
 
 Summary
 -------
 
-- GPUs are highly parallel devices that can execute certain parts of the progrem in many parallel threads.
+- GPUs are highly parallel devices that can execute certain parts of the program in many parallel threads.
 
 - CPU controls the works flow and makes all the allocations and data transfers.
 
-- In order to use the GPU efficiency, one has to split their the problem  in many parts that can run simultenuously.
+- In order to use the GPU efficiently, one has to split their the problem  in many parts that can run simultaneously.
 
 .. keypoints::
 
