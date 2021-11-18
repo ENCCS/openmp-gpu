@@ -29,9 +29,8 @@ A host/device model is generally used by OpenMP for offloading:
 
 .. note::
 
-   Under the following conditions, there will be **NO data transfer** to the device
+   Under the following condition, there will be **NO data transfer** to the device
 
-   - device is host
    - data already exists on the device from a previous execution
      
 
@@ -164,7 +163,7 @@ the host to the device and the data between the host and device.
          .. literalinclude:: exercise/ex01/solution/ex01.c
             :language: c
             :linenos:
-	    :emphasize-lines: 18
+	    :emphasize-lines: 19
 
 
       .. tab:: Fortran
@@ -172,7 +171,7 @@ the host to the device and the data between the host and device.
 	 .. literalinclude:: exercise/ex01/solution/ex01.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 19,23
+            :emphasize-lines: 20,24
 
 
 	  
@@ -398,14 +397,14 @@ FOR/DO construct
 .. keypoints::
 
   TEAMS DISTRIBUTE construct
-    - Coarser-grained parallelism
-    - Spawns multiple teams, each with one thread
-    - Threads in different teams can’t synchronize with each other
+    - Coarse-grained parallelism
+    - Spawns multiple single-thread teams
+    - No synchronization of threads in different teams
 
   PARALLEL FOR/DO construct
-    - Finer-grained parallelism
-    - Spawns many threads in a team
-    - Threads in a team can synchronize with each other
+    - Fine-grained parallelism
+    - Spawns many threads in one team
+    - Threads can synchronize in a team
 
 
 
@@ -438,7 +437,7 @@ FOR/DO construct
          .. literalinclude:: exercise/ex02/solution/ex02.c
             :language: c
             :linenos:
-	    :emphasize-lines: 18
+	    :emphasize-lines: 19
 
 
       .. tab:: Fortran
@@ -446,7 +445,7 @@ FOR/DO construct
 	 .. literalinclude:: exercise/ex02/solution/ex02.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 19,23
+            :emphasize-lines: 20,24
 
 
 .. exercise:: Exercise03: ``TEAMS`` vs  ``PARALLEL`` constructs
@@ -480,7 +479,7 @@ FOR/DO construct
          .. literalinclude:: exercise/ex03/solution/ex03.c
             :language: c
             :linenos:
-	    :emphasize-lines: 14,15
+	    :emphasize-lines: 15,16
 
 
       .. tab:: Fortran
@@ -488,7 +487,7 @@ FOR/DO construct
 	 .. literalinclude:: exercise/ex03/solution/ex03.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 16,17,21,22
+            :emphasize-lines: 17,18,22,23
 
 
 
@@ -559,13 +558,12 @@ It is convenient to use the composite construct
 
          .. literalinclude:: exercise/solution/offloading/core.cpp
                         :language: cpp
-			:emphasize-lines: 25-26
-
+			:emphasize-lines: 26-27
+                        :linenos:
 
       .. tab:: Fortran
 
          .. literalinclude:: exercise/solution/offloading/fortran/core.F90
                         :language: fortran
-                        :emphasize-lines: 36,46
-
-
+                        :emphasize-lines: 37,47
+                        :linenos:
