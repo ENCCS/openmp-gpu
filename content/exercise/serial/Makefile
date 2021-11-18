@@ -1,7 +1,7 @@
 # Copyright (c) 2019 CSC Training
 # Copyright (c) 2021 ENCCS
 ifeq ($(COMP),)
-COMP=gnu
+COMP=nv
 endif
 
 HAVE_PNG=0
