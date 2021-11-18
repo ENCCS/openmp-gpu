@@ -392,7 +392,7 @@ Optimize Data Transfers
 
       .. tab:: Fortran
 
-	 .. literalinclude:: exercise/data_mapping/main.F90                  
+	 .. literalinclude:: exercise/data_mapping/fortran/main.F90                  
 	    :language: fortran
             :linenos:
 	    :emphasize-lines: 44,45,50,51,57,58
