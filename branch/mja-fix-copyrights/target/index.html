@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offloading to GPU &mdash; OpenMP for GPU offloading  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Data environment" href="../data/" />
+    <link rel="prev" title="Profiling code for GPUs" href="../profiling/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../" class="icon icon-home"> OpenMP for GPU offloading
+            <img src="../_static/ENCCS_CSC_logos.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">The lessons</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">Why OpenMP offloading?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../miniapp/">Heat diffusion mini-app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpu-architecture/">Introduction to GPU architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiling/">Profiling code for GPUs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Offloading to GPU</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#host-device-model">Host-device model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device-execution-model">Device execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#target-construct">TARGET construct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-parallelism-on-the-target-device">Creating parallelism on the target device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#teams-construct">TEAMS construct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distribute-construct">DISTRIBUTE construct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-construct">PARALLEL construct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-do-construct">FOR/DO construct</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#composite-directive">Composite directive</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data/">Data environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimization/">Optimizing OpenMP offloaded code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../multi-gpu/">Multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interoperability/">Working alongside GPU libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../porting/">Porting code to OpenMP offloading</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">OpenMP for GPU offloading</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+      <li>Offloading to GPU</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/openmp-gpu/blob/main/content/target.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="offloading-to-gpu">
+<h1>Offloading to GPU<a class="headerlink" href="#offloading-to-gpu" title="Permalink to this headline"></a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand and be able to offload code to device</p></li>
+<li><p>Understand different constructs to create parallelism on device</p></li>
+</ul>
+</div>
+<div class="section" id="host-device-model">
+<span id="id1"></span><h2>Host-device model<a class="headerlink" href="#host-device-model" title="Permalink to this headline"></a></h2>
+<p>Since version 4.0 , OpenMP supports heterogeneous systems. OpenMP uses
+<code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct to offload execution from the host to the target
+device(s), and hence the directive name. In addition, the associated
+data needs to be transferred to the device(s) as well.  Once
+transferred, the target device owns the data and accesses by the host
+<em>during the execution</em> of the target region is forbidden.</p>
+<p>A host/device model is generally used by OpenMP for offloading:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>normally there is only one single host: e.g. CPU</p></li>
+<li><p>one or multiple target devices <em>of the same kind</em>: e.g. coprocessor, GPU, FPGA, …</p></li>
+<li><p>unless with unified shared memory, the host and device have separate memory address space</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Under the following conditions, there will be <strong>NO data transfer</strong> to the device</p>
+<ul class="simple">
+<li><p>device is host</p></li>
+<li><p>data already exists on the device from a previous execution</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="device-execution-model">
+<span id="id2"></span><h2>Device execution model<a class="headerlink" href="#device-execution-model" title="Permalink to this headline"></a></h2>
+<p>The execution on the device is host-centric</p>
+<p>1.the host creates the data environments on the device(s)</p>
+<p>2.the host maps data to the device data environment</p>
+<p>3.the host offloads OpenMP target regions to the target device to be  executed</p>
+<p>4.the host transfers data from the device to the host</p>
+<p>5.the host destroys the data environment on the device</p>
+</div>
+<div class="section" id="target-construct">
+<h2>TARGET construct<a class="headerlink" href="#target-construct" title="Permalink to this headline"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct consists of a <em>target</em> directive and an
+execution region. It is used to transfer both the control flow from
+the host to the device and the data between the host and device.</p>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target [clauses]</span>
+<span class="w">     </span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">([</span><span class="w"> </span><span class="nl">target</span><span class="p">:]</span><span class="w"> </span><span class="n">scalar</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">device</span><span class="p">(</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">map</span><span class="p">([</span><span class="n">map</span><span class="o">-</span><span class="nl">type</span><span class="p">:]</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">is_device_ptr</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">defaultmap</span><span class="p">(</span><span class="nl">tofrom</span><span class="p">:</span><span class="n">scalar</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">nowait</span><span class="w"></span>
+<span class="w">      </span><span class="n">depend</span><span class="p">(</span><span class="n">dependence</span><span class="o">-</span><span class="nl">type</span> <span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target [clauses]</span>
+      <span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$omp end target</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">:</span>
+      <span class="k">if</span><span class="p">([</span> <span class="k">target</span><span class="p">:]</span> <span class="n">scalar</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+      <span class="n">device</span><span class="p">(</span><span class="kt">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+      <span class="k">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+      <span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+      <span class="n">map</span><span class="p">([</span><span class="n">map</span><span class="o">-</span><span class="k">type</span><span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+      <span class="n">is_device_ptr</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+      <span class="n">defaultmap</span><span class="p">(</span><span class="n">tofrom</span><span class="p">:</span><span class="n">scalar</span><span class="p">)</span>
+      <span class="n">nowait</span>
+      <span class="n">depend</span><span class="p">(</span><span class="n">dependence</span><span class="o">-</span><span class="k">type</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-exercise00-hello-world-with-openmp-offloading exercise important admonition">
+<p class="admonition-title">Exercise00: Hello world with OpenMP offloading</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;omp.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span>
+<span class="linenos"> 9</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">10</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_devices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_devices</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">11</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Number of available devices %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">num_devices</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="w">  </span><span class="cp">#pragma omp target </span>
+<span class="linenos">14</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">omp_is_initial_device</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">16</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on host</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">    </span>
+<span class="linenos">17</span><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nteams</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_teams</span><span class="p">();</span><span class="w"> </span>
+<span class="linenos">19</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_threads</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on device with %d teams in total and %d threads in each team</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">22</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">  </span>
+<span class="linenos">24</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">25</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">hello</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span>  <span class="k">use </span><span class="n">omp_lib</span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>  <span class="k">implicit none</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="k">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">num_devices</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span>
+<span class="linenos">10</span>  <span class="kt">logical</span> <span class="kd">::</span> <span class="n">initial_device</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="n">num_devices</span> <span class="o">=</span> <span class="n">omp_get_num_devices</span><span class="p">()</span>
+<span class="linenos">13</span>  <span class="k">print</span> <span class="o">*</span><span class="p">,</span> <span class="s2">&quot;Number of available devices&quot;</span><span class="p">,</span> <span class="n">num_devices</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>  <span class="c">!$omp target map(nteams,nthreads)</span>
+<span class="linenos">16</span>    <span class="n">initial_device</span> <span class="o">=</span> <span class="n">omp_is_initial_device</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="n">nteams</span><span class="o">=</span> <span class="n">omp_get_num_teams</span><span class="p">()</span>
+<span class="linenos">18</span>    <span class="n">nthreads</span><span class="o">=</span> <span class="n">omp_get_num_threads</span><span class="p">()</span>
+<span class="linenos">19</span>  <span class="c">!$omp end target </span>
+<span class="linenos">20</span>    <span class="k">if</span> <span class="p">(</span><span class="n">initial_device</span><span class="p">)</span> <span class="k">then</span>
+<span class="linenos">21</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s2">&quot;Running on host&quot;</span>
+<span class="linenos">22</span>    <span class="k">else </span>
+<span class="linenos">23</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I4,A,I4,A)&#39;</span><span class="p">)</span> <span class="s2">&quot;Running on device with &quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span> <span class="s2">&quot; teams in total and &quot;</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="s2">&quot; threads in each team&quot;</span>
+<span class="linenos">24</span>    <span class="k">end if</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-exercise01-adding-target-construct exercise important admonition">
+<p class="admonition-title">Exercise01: Adding <code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 4</span><span class="cp">#define NX 102400</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span><span class="w"></span>
+<span class="linenos"> 9</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="cm">/* Initialization of vectors */</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">13</span><span class="w">     </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">14</span><span class="w">     </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="cm">/* Dot product of two vectors */</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">19</span><span class="w">     </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">  </span><span class="cm">/* Calculate the sum */</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">25</span><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">26</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">29</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">dotproduct</span>
+<span class="linenos"> 3</span>  <span class="k">implicit none</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="k">  </span><span class="kt">integer</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">102400</span>
+<span class="linenos"> 6</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="kd">::</span> <span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="linenos"> 9</span>  <span class="kt">real</span>    <span class="kd">::</span> <span class="nb">sum</span>
+<span class="linenos">10</span><span class="nb">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="c">! Initialization of vectors</span>
+<span class="linenos">13</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">14</span>     <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">15</span>     <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">16</span>  <span class="k">end do</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>  <span class="c">! Dot product of two vectors</span>
+<span class="linenos">19</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">20</span>     <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span>  <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="linenos">21</span>  <span class="k">end do</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="k">  </span><span class="nb">sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="linenos">24</span>  <span class="c">! Calculate the sum </span>
+<span class="linenos">25</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">26</span>     <span class="nb">sum</span> <span class="o">=</span>  <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span>
+<span class="linenos">27</span><span class="nb">  </span><span class="k">end do</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="k">  write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span> <span class="nb">sum</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="k">end program </span><span class="n">dotproduct</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-solution solution important dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 4</span><span class="cp">#define NX 102400</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span><span class="w"></span>
+<span class="linenos"> 9</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="cm">/* Initialization of vectors */</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">13</span><span class="w">     </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">14</span><span class="w">     </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="cm">/* dot product of two vectors */</span><span class="w"></span>
+<span class="hll"><span class="linenos">18</span><span class="w">  </span><span class="cp">#pragma omp target</span>
+</span><span class="linenos">19</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">     </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="cm">/* calculate the sum */</span><span class="w"></span>
+<span class="linenos">25</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">30</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">dotproduct</span>
+<span class="linenos"> 3</span>  <span class="k">implicit none</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="k">  </span><span class="kt">integer</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">102400</span>
+<span class="linenos"> 6</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="kd">::</span> <span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="linenos"> 9</span>  <span class="kt">real</span>    <span class="kd">::</span> <span class="nb">sum</span>
+<span class="linenos">10</span><span class="nb">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="c">! Initialization of vectors</span>
+<span class="linenos">13</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">14</span>     <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">15</span>     <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">16</span>  <span class="k">end do</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>  <span class="c">! Dot product of two vectors </span>
+<span class="hll"><span class="linenos">19</span>  <span class="c">!$omp target  </span>
+</span><span class="linenos">20</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">21</span>     <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span>  <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="linenos">22</span>  <span class="k">end do</span>
+<span class="hll"><span class="linenos">23</span>  <span class="c">!$omp end target</span>
+</span><span class="linenos">24</span>
+<span class="linenos">25</span>  <span class="nb">sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="linenos">26</span>  <span class="c">! Calculate the sum </span>
+<span class="linenos">27</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">28</span>     <span class="nb">sum</span> <span class="o">=</span>  <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span>
+<span class="linenos">29</span><span class="nb">  </span><span class="k">end do</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="k">  write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span> <span class="nb">sum</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="k">end program </span><span class="n">dotproduct</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="creating-parallelism-on-the-target-device">
+<h2>Creating parallelism on the target device<a class="headerlink" href="#creating-parallelism-on-the-target-device" title="Permalink to this headline"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct transfers the control flow to the device is
+sequential and synchronous, and it is because OpenMP separates offload
+and parallelism.  One needs to explicitly create parallel regions on
+the target device to make efficient use of the device(s).</p>
+<div class="section" id="teams-construct">
+<h3>TEAMS construct<a class="headerlink" href="#teams-construct" title="Permalink to this headline"></a></h3>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp teams [clauses]</span>
+<span class="w">      </span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="n">num_teams</span><span class="p">(</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="n">thread_limit</span><span class="p">(</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="k">default</span><span class="p">(</span><span class="n">shared</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">none</span><span class="p">)</span><span class="w"></span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">shared</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">reduction</span><span class="p">(</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp teams [clauses]</span>
+        <span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$omp end teams</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span>clause:
+num_teams(integer-expression)
+thread_limit(integer-expression)
+default(shared | none)
+private(list)
+firstprivate(list)
+shared(list)
+reduction(reduction-identifier : list)
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">TEAMS</span></code> construct creates a league of one-thread teams where
+the thread of each team executes <em>concurrently</em> and is in its own <em>contention group</em>.
+The number of teams created is implementation defined, but is no more than
+num_teams if specified in the clause. The maximum number of threads participating in
+the contention group that each team initiates is implementation defined as well,
+unless thread_limit is specified in the clause.
+Threads in a team can synchronize but no synchronization among teams.
+The <code class="docutils literal notranslate"><span class="pre">TEAMS</span></code> construct must be contained in a <code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct,
+without any other directives, statements or declarations in between.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A contention group is the set of all threads that are descendants of an initial thread.
+An initial thread is never a descendant of another initial thread.</p>
+</div>
+</div>
+<div class="section" id="distribute-construct">
+<h3>DISTRIBUTE construct<a class="headerlink" href="#distribute-construct" title="Permalink to this headline"></a></h3>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-5-5-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-5-5-0" name="5-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-5-5-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-1" name="5-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-5-5-0" class="sphinx-tabs-panel" id="panel-5-5-0" name="5-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp distribute [clauses]</span>
+<span class="w">      </span><span class="k">for</span><span class="o">-</span><span class="n">loops</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"></span>
+<span class="n">dist_schedule</span><span class="p">(</span><span class="n">kind</span><span class="p">[,</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">])</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-1" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-1" name="5-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp distribute [clauses]</span>
+        <span class="k">do</span><span class="o">-</span><span class="n">loops</span>
+<span class="p">[</span><span class="c">!$omp end distribute]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">:</span>
+<span class="k">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="n">dist_schedule</span><span class="p">(</span><span class="nb">kind</span><span class="p">[,</span> <span class="n">chunk_size</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">DISTRIBUTE</span></code> construct is a coarsely worksharing construct
+which distributes the loop iterations across the master threads in the teams,
+but no worksharing within the threads in one team. No implicit barrier
+at the end of the construct and no guarantee about the order the teams
+will execute.</p>
+<p>To further create threads within each team and distritute loop iterations across threads,
+we will use the  <code class="docutils literal notranslate"><span class="pre">PARALLEL</span> <span class="pre">FOR/DO</span></code> constructs.</p>
+</div>
+<div class="section" id="parallel-construct">
+<h3>PARALLEL construct<a class="headerlink" href="#parallel-construct" title="Permalink to this headline"></a></h3>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-6-6-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-6-6-0" name="6-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-6-6-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-1" name="6-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-6-6-0" class="sphinx-tabs-panel" id="panel-6-6-0" name="6-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp parallel [clauses]</span>
+<span class="w">      </span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="n">num_threads</span><span class="p">(</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="k">default</span><span class="p">(</span><span class="n">shared</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">none</span><span class="p">)</span><span class="w"></span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">shared</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">reduction</span><span class="p">(</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-1" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-1" name="6-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp parallel [clauses]</span>
+        <span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$omp end parallel</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span>clause:
+num_threads(integer-expression)
+default(private | firstprivate | shared | none)
+private(list)
+firstprivate(list)
+shared(list)
+copyin(list)
+reduction(reduction-identifier : list)
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="for-do-construct">
+<h3>FOR/DO construct<a class="headerlink" href="#for-do-construct" title="Permalink to this headline"></a></h3>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-7-7-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-7-7-0" name="7-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-7-7-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-1" name="7-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-7-7-0" class="sphinx-tabs-panel" id="panel-7-7-0" name="7-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp for [clauses]</span>
+<span class="w">      </span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="n">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">reduction</span><span class="p">(</span><span class="n">reduction</span><span class="o">-</span><span class="nl">identifier</span> <span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">schedule</span><span class="p">(</span><span class="n">kind</span><span class="p">[,</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">])</span><span class="w"></span>
+<span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-1" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-1" name="7-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp do [clauses]</span>
+        <span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="p">[</span><span class="c">!$omp end do]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">:</span>
+<span class="k">private</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">firstprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">lastprivate</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="n">reduction</span><span class="p">(</span><span class="n">reduction</span><span class="o">-</span><span class="n">identifier</span> <span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">schedule</span><span class="p">(</span><span class="nb">kind</span><span class="p">[,</span> <span class="n">chunk_size</span><span class="p">])</span>
+<span class="n">collapse</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-keypoints keypoints admonition">
+<p class="admonition-title">Keypoints</p>
+<dl class="simple">
+<dt>TEAMS DISTRIBUTE construct</dt><dd><ul class="simple">
+<li><p>Coarser-grained parallelism</p></li>
+<li><p>Spawns multiple teams, each with one thread</p></li>
+<li><p>Threads in different teams can’t synchronize with each other</p></li>
+</ul>
+</dd>
+<dt>PARALLEL FOR/DO construct</dt><dd><ul class="simple">
+<li><p>Finer-grained parallelism</p></li>
+<li><p>Spawns many threads in a team</p></li>
+<li><p>Threads in a team can synchronize with each other</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="admonition-exercise02-adding-constructs-for-parallelism exercise important admonition">
+<p class="admonition-title">Exercise02: Adding constructs for parallelism</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-8-8-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-8-8-0" name="8-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-8-8-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-1" name="8-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-8-8-0" class="sphinx-tabs-panel" id="panel-8-8-0" name="8-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 4</span><span class="cp">#define NX 102400</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span><span class="w"></span>
+<span class="linenos"> 9</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="cm">/* Initialization of vectors */</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">13</span><span class="w">     </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">14</span><span class="w">     </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="cm">/* dot product of two vectors */</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">  </span><span class="cp">#pragma omp target</span>
+<span class="linenos">19</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">     </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="cm">/* calculate the sum */</span><span class="w"></span>
+<span class="linenos">25</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">30</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-1" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-1" name="8-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">dotproduct</span>
+<span class="linenos"> 3</span>  <span class="k">implicit none</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="k">  </span><span class="kt">integer</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">102400</span>
+<span class="linenos"> 6</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="kd">::</span> <span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="linenos"> 9</span>  <span class="kt">real</span>    <span class="kd">::</span> <span class="nb">sum</span>
+<span class="linenos">10</span><span class="nb">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="c">! Initialization of vectors</span>
+<span class="linenos">13</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">14</span>     <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">15</span>     <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">16</span>  <span class="k">end do</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>  <span class="c">! Dot product of two vectors </span>
+<span class="linenos">19</span>  <span class="c">!$omp target  </span>
+<span class="linenos">20</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">21</span>     <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span>  <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="linenos">22</span>  <span class="k">end do</span>
+<span class="linenos">23</span>  <span class="c">!$omp end target</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span>  <span class="nb">sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="linenos">26</span>  <span class="c">! Calculate the sum </span>
+<span class="linenos">27</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">28</span>     <span class="nb">sum</span> <span class="o">=</span>  <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span>
+<span class="linenos">29</span><span class="nb">  </span><span class="k">end do</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="k">  write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span> <span class="nb">sum</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="k">end program </span><span class="n">dotproduct</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-solution solution important dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-9-9-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-9-9-0" name="9-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-9-9-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-9-9-1" name="9-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-9-9-0" class="sphinx-tabs-panel" id="panel-9-9-0" name="9-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 4</span><span class="cp">#define NX 102400</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span><span class="w"></span>
+<span class="linenos"> 9</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="cm">/* Initialization of vectors */</span><span class="w"></span>
+<span class="linenos">12</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">13</span><span class="w">     </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">14</span><span class="w">     </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="cm">/* dot product of two vectors */</span><span class="w"></span>
+<span class="hll"><span class="linenos">18</span><span class="w">  </span><span class="cp">#pragma omp target teams distribute parallel for</span>
+</span><span class="linenos">19</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">     </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="cm">/* calculate the sum */</span><span class="w"></span>
+<span class="linenos">25</span><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">30</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-9-9-1" class="sphinx-tabs-panel" hidden="true" id="panel-9-9-1" name="9-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">dotproduct</span>
+<span class="linenos"> 3</span>  <span class="k">implicit none</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="k">  </span><span class="kt">integer</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">102400</span>
+<span class="linenos"> 6</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>  <span class="kt">real</span><span class="p">,</span> <span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="kd">::</span> <span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="linenos"> 9</span>  <span class="kt">real</span>    <span class="kd">::</span> <span class="nb">sum</span>
+<span class="linenos">10</span><span class="nb">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="c">! Initialization of vectors</span>
+<span class="linenos">13</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">14</span>     <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">15</span>     <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="linenos">16</span>  <span class="k">end do</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>  <span class="c">! Dot product of two vectors </span>
+<span class="hll"><span class="linenos">19</span>  <span class="c">!$omp target teams distribute parallel do </span>
+</span><span class="linenos">20</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">21</span>     <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span>  <span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="linenos">22</span>  <span class="k">end do</span>
+<span class="hll"><span class="linenos">23</span>  <span class="c">!$omp end target teams distribute parallel do</span>
+</span><span class="linenos">24</span>
+<span class="linenos">25</span>  <span class="nb">sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="linenos">26</span>  <span class="c">! Calculate the sum </span>
+<span class="linenos">27</span>  <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+<span class="linenos">28</span>     <span class="nb">sum</span> <span class="o">=</span>  <span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span>
+<span class="linenos">29</span><span class="nb">  </span><span class="k">end do</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="k">  write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span> <span class="nb">sum</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="k">end program </span><span class="n">dotproduct</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-exercise03-teams-vs-parallel-constructs exercise important admonition">
+<p class="admonition-title">Exercise03: <code class="docutils literal notranslate"><span class="pre">TEAMS</span></code> vs  <code class="docutils literal notranslate"><span class="pre">PARALLEL</span></code> constructs</p>
+<p>We start from the “hello world” example, and by adding <code class="docutils literal notranslate"><span class="pre">TEAMS</span></code> and  <code class="docutils literal notranslate"><span class="pre">PARALLEL</span></code> constructs
+to compare the differences. Furthermore, using <code class="docutils literal notranslate"><span class="pre">num_teams</span></code> and <code class="docutils literal notranslate"><span class="pre">thread_limit</span></code> to limit
+the number of teams and threads to be generated.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-10-10-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-10-10-0" name="10-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-10-10-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-10-10-1" name="10-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-10-10-0" class="sphinx-tabs-panel" id="panel-10-10-0" name="10-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;omp.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span>
+<span class="linenos"> 9</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">10</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_devices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_devices</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">11</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Number of available devices %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">num_devices</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="w">  </span><span class="cp">#pragma omp target </span>
+<span class="linenos">14</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">15</span><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">omp_is_initial_device</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">16</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on host</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">    </span>
+<span class="linenos">17</span><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nteams</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_teams</span><span class="p">();</span><span class="w"> </span>
+<span class="linenos">19</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_threads</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on device with %d teams in total and %d threads in each team</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">22</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">  </span>
+<span class="linenos">24</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">25</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-10-10-1" class="sphinx-tabs-panel" hidden="true" id="panel-10-10-1" name="10-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">hello</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span>  <span class="k">use </span><span class="n">omp_lib</span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>  <span class="k">implicit none</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="k">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">num_devices</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span>
+<span class="linenos">10</span>  <span class="kt">logical</span> <span class="kd">::</span> <span class="n">initial_device</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="n">num_devices</span> <span class="o">=</span> <span class="n">omp_get_num_devices</span><span class="p">()</span>
+<span class="linenos">13</span>  <span class="k">print</span> <span class="o">*</span><span class="p">,</span> <span class="s2">&quot;Number of available devices&quot;</span><span class="p">,</span> <span class="n">num_devices</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>  <span class="c">!$omp target  map(nteams,nthreads)</span>
+<span class="linenos">16</span>    <span class="n">initial_device</span> <span class="o">=</span> <span class="n">omp_is_initial_device</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="n">nteams</span><span class="o">=</span> <span class="n">omp_get_num_teams</span><span class="p">()</span>
+<span class="linenos">18</span>    <span class="n">nthreads</span><span class="o">=</span> <span class="n">omp_get_num_threads</span><span class="p">()</span>
+<span class="linenos">19</span>  <span class="c">!$omp end target </span>
+<span class="linenos">20</span>    <span class="k">if</span> <span class="p">(</span><span class="n">initial_device</span><span class="p">)</span> <span class="k">then</span>
+<span class="linenos">21</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s2">&quot;Running on host&quot;</span>
+<span class="linenos">22</span>    <span class="k">else </span>
+<span class="linenos">23</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I4,A,I4,A)&#39;</span><span class="p">)</span> <span class="s2">&quot;Running on device with &quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span> <span class="s2">&quot; teams in total and &quot;</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="s2">&quot; threads in each team&quot;</span>
+<span class="linenos">24</span>    <span class="k">end if</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-solution solution important dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-11-11-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-11-11-0" name="11-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-11-11-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-11-11-1" name="11-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-11-11-0" class="sphinx-tabs-panel" id="panel-11-11-0" name="11-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* Copyright (c) 2021 ENCCS */</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;omp.h&gt;</span><span class="cp"></span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span>
+<span class="linenos"> 9</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">10</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_devices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_devices</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">11</span><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Number of available devices %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">num_devices</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="w">  </span><span class="cp">#pragma omp target </span>
+<span class="hll"><span class="linenos">14</span><span class="w">  </span><span class="cp">#pragma omp teams num_teams(2) thread_limit(3)</span>
+</span><span class="hll"><span class="linenos">15</span><span class="w">  </span><span class="cp">#pragma omp parallel</span>
+</span><span class="linenos">16</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">17</span><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">omp_is_initial_device</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">18</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on host</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">    </span>
+<span class="linenos">19</span><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">20</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nteams</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_teams</span><span class="p">();</span><span class="w"> </span>
+<span class="linenos">21</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_threads</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">22</span><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running on device with %d teams in total and %d threads in each team</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">24</span><span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">25</span><span class="w">  </span>
+<span class="linenos">26</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">27</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-11-11-1" class="sphinx-tabs-panel" hidden="true" id="panel-11-11-1" name="11-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="linenos"> 2</span><span class="k">program </span><span class="n">hello</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="cp">#ifdef _OPENMP</span>
+<span class="linenos"> 5</span>  <span class="k">use </span><span class="n">omp_lib</span>
+<span class="linenos"> 6</span><span class="cp">#endif</span>
+<span class="linenos"> 7</span>  <span class="k">implicit none</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="k">  </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">num_devices</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span><span class="n">nthreads</span>
+<span class="linenos">10</span>  <span class="kt">logical</span> <span class="kd">::</span> <span class="n">initial_device</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>  <span class="n">num_devices</span> <span class="o">=</span> <span class="n">omp_get_num_devices</span><span class="p">()</span>
+<span class="linenos">13</span>  <span class="k">print</span> <span class="o">*</span><span class="p">,</span> <span class="s2">&quot;Number of available devices&quot;</span><span class="p">,</span> <span class="n">num_devices</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>  <span class="c">!$omp target map(nteams,nthreads)</span>
+<span class="hll"><span class="linenos">16</span>  <span class="c">!$omp teams num_teams(2) thread_limit(3)</span>
+</span><span class="hll"><span class="linenos">17</span>  <span class="c">!$omp parallel</span>
+</span><span class="linenos">18</span>    <span class="n">initial_device</span> <span class="o">=</span> <span class="n">omp_is_initial_device</span><span class="p">()</span>
+<span class="linenos">19</span>    <span class="n">nteams</span><span class="o">=</span> <span class="n">omp_get_num_teams</span><span class="p">()</span>
+<span class="linenos">20</span>    <span class="n">nthreads</span><span class="o">=</span> <span class="n">omp_get_num_threads</span><span class="p">()</span>
+<span class="hll"><span class="linenos">21</span>  <span class="c">!$omp end parallel </span>
+</span><span class="hll"><span class="linenos">22</span>  <span class="c">!$omp end teams</span>
+</span><span class="linenos">23</span>  <span class="c">!$omp end target </span>
+<span class="linenos">24</span>    <span class="k">if</span> <span class="p">(</span><span class="n">initial_device</span><span class="p">)</span> <span class="k">then</span>
+<span class="linenos">25</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span> <span class="s2">&quot;Running on host&quot;</span>
+<span class="linenos">26</span>    <span class="k">else </span>
+<span class="linenos">27</span><span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I4,A,I4,A)&#39;</span><span class="p">)</span> <span class="s2">&quot;Running on device with &quot;</span><span class="p">,</span><span class="n">nteams</span><span class="p">,</span> <span class="s2">&quot; teams in total and &quot;</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="s2">&quot; threads in each team&quot;</span>
+<span class="linenos">28</span>    <span class="k">end if</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+</div>
+<div class="section" id="composite-directive">
+<h2>Composite directive<a class="headerlink" href="#composite-directive" title="Permalink to this headline"></a></h2>
+<p>It is convenient to use the composite construct</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the code is more portable</p></li>
+<li><p>let the compiler figures out the loop tiling since each compiler
+supports different levels of parallelism</p></li>
+<li><p>possible to reach good performance without composite directives</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-syntax exercise important admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-12-12-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-12-12-0" name="12-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-12-12-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-12-12-1" name="12-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-12-12-0" class="sphinx-tabs-panel" id="panel-12-12-0" name="12-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target teams distribute parallel for [clauses]</span>
+<span class="w">      </span><span class="k">for</span><span class="o">-</span><span class="n">loops</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-12-12-1" class="sphinx-tabs-panel" hidden="true" id="panel-12-12-1" name="12-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target teams distribute parallel do [clauses]</span>
+        <span class="k">do</span><span class="o">-</span><span class="n">loops</span>
+<span class="p">[</span><span class="c">!$omp end target teams distribute parallel do ]</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-exercise-offloading exercise important admonition">
+<p class="admonition-title">Exercise: Offloading</p>
+<p>We will start from the serial version of the heat diffusion and step by step
+add the directives for offloading and parallelism on the target device.  Compare
+the performance to understand the effects of different directives. We will
+focus on the core operation only for now, i.e. subroutine evolve
+in the file core.cpp or core.F90.</p>
+<p>For C/C++, you need to add a data mapping clause
+<code class="docutils literal notranslate"><span class="pre">map(currdata[0:(nx+2)*(ny+2)],prevdata[0:(nx+2)*(ny+2)])</span></code></p>
+<p>step 1: adding the <code class="docutils literal notranslate"><span class="pre">TARGET</span></code> construct</p>
+<p>step 2: adding the <code class="docutils literal notranslate"><span class="pre">TARGET</span> <span class="pre">TEAMS</span></code> construct</p>
+<p>step 3: adding the <code class="docutils literal notranslate"><span class="pre">TARGET</span> <span class="pre">TEAMS</span> <span class="pre">DISTRIBUTE</span></code> construct</p>
+<p>step 4: adding the <code class="docutils literal notranslate"><span class="pre">TARGET</span> <span class="pre">TEAMS</span> <span class="pre">DISTRIBUTE</span> <span class="pre">PARALLEL</span> <span class="pre">FOR/DO</span></code> construct</p>
+<p>Use a small number of iterations, e.g. ./heat_serial 800 800 10,
+otherwise it may take a long time to finish.</p>
+<p>The exercise is under /content/exercise/offloading</p>
+</div>
+<div class="admonition-solution solution important dropdown admonition">
+<p class="admonition-title">Solution</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-13-13-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-13-13-0" name="13-0" role="tab" tabindex="0">C++</button><button aria-controls="panel-13-13-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-13-13-1" name="13-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-13-13-0" class="sphinx-tabs-panel" id="panel-13-13-0" name="13-0" role="tabpanel" tabindex="0"><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Copyright (c) 2019 CSC Training</span>
+<span class="c1">// Copyright (c) 2021 ENCCS</span>
+<span class="c1">// Main solver routines for heat equation solver</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;heat.h&quot;</span><span class="cp"></span>
+
+<span class="c1">// Update the temperature values using five-point stencil</span>
+<span class="c1">// Arguments:</span>
+<span class="c1">//   curr: current temperature values</span>
+<span class="c1">//   prev: temperature values from previous time step</span>
+<span class="c1">//   a: diffusivity</span>
+<span class="c1">//   dt: time step</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">evolve</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">*</span><span class="n">curr</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">*</span><span class="n">prev</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Help the compiler avoid being confused by the structs</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">currdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">data</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">prevdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">data</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">nx</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">ny</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Determine the temperature field at next time step</span>
+<span class="w">  </span><span class="c1">// As we have fixed boundary conditions, the outermost gridpoints</span>
+<span class="w">  </span><span class="c1">// are not updated.</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dx2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">dx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">dx</span><span class="p">;</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">dy2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">dy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">dy</span><span class="p">;</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="cp">#pragma omp target teams distribute parallel for \</span>
+</span><span class="cp">  map(currdata[0:(nx+2)*(ny+2)],prevdata[0:(nx+2)*(ny+2)])</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">ind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">im</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">jp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">jm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">ny</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">currdata</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prevdata</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">a</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="w"></span>
+<span class="w">	    </span><span class="p">((</span><span class="n">prevdata</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">prevdata</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prevdata</span><span class="p">[</span><span class="n">im</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dx2</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">	     </span><span class="p">(</span><span class="n">prevdata</span><span class="p">[</span><span class="n">jp</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">prevdata</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">prevdata</span><span class="p">[</span><span class="n">jm</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dy2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-13-13-1" class="sphinx-tabs-panel" hidden="true" id="panel-13-13-1" name="13-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">! Copyright (c) 2019 CSC Training</span>
+<span class="c">! Copyright (c) 2021 ENCCS</span>
+<span class="c">! Main solver routines for heat equation solver</span>
+<span class="k">module </span><span class="n">core</span>
+  <span class="k">use </span><span class="n">heat</span>
+
+<span class="k">contains</span>
+
+  <span class="c">! Update the temperature values using five-point stencil</span>
+  <span class="c">! Arguments:</span>
+  <span class="c">!   curr (type(field)): current temperature values</span>
+  <span class="c">!   prev (type(field)): temperature values from previous time step</span>
+  <span class="c">!   a (real(dp)): diffusivity</span>
+  <span class="c">!   dt (real(dp)): time step</span>
+  <span class="k">subroutine </span><span class="n">evolve</span><span class="p">(</span><span class="n">curr</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+
+    <span class="k">implicit none</span>
+
+<span class="k">    type</span><span class="p">(</span><span class="n">field</span><span class="p">),</span><span class="k">target</span><span class="p">,</span> <span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span> <span class="kd">::</span> <span class="n">curr</span><span class="p">,</span> <span class="n">prev</span>
+    <span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span> <span class="kd">::</span> <span class="n">a</span><span class="p">,</span> <span class="n">dt</span>
+    <span class="kt">integer</span> <span class="kd">::</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span>
+    <span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span> <span class="kd">::</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span>
+    <span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span> <span class="k">pointer</span><span class="p">,</span> <span class="k">contiguous</span><span class="p">,</span> <span class="k">dimension</span><span class="p">(:,:)</span> <span class="kd">::</span> <span class="n">currdata</span><span class="p">,</span> <span class="n">prevdata</span>
+
+    <span class="c">! Help the compiler avoid being confused</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="n">curr</span><span class="p">%</span><span class="n">nx</span>
+    <span class="n">ny</span> <span class="o">=</span> <span class="n">curr</span><span class="p">%</span><span class="n">ny</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">curr</span><span class="p">%</span><span class="n">dx</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">curr</span><span class="p">%</span><span class="n">dy</span>
+    <span class="n">currdata</span> <span class="o">=&gt;</span> <span class="n">curr</span><span class="p">%</span><span class="k">data</span>
+<span class="k">    </span><span class="n">prevdata</span> <span class="o">=&gt;</span> <span class="n">prev</span><span class="p">%</span><span class="k">data</span>
+
+    <span class="c">! Determine the temperature field at next time step As we have</span>
+    <span class="c">! fixed boundary conditions, the outermost gridpoints are not</span>
+    <span class="c">! updated.</span>
+<span class="hll">
+</span>    <span class="c">!$omp target teams distribute parallel do</span>
+    <span class="k">do </span><span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ny</span>
+       <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+          <span class="n">currdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">=</span> <span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">&amp;</span>
+               <span class="p">&amp;</span> <span class="p">((</span><span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">+</span> <span class="p">&amp;</span>
+               <span class="p">&amp;</span>   <span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="o">/</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">&amp;</span>
+               <span class="p">&amp;</span>  <span class="p">(</span><span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">+</span> <span class="p">&amp;</span>
+               <span class="p">&amp;</span>   <span class="n">prevdata</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+       <span class="k">end do</span>
+<span class="hll"><span class="k">    end do</span>
+</span>    <span class="c">!$omp end target teams distribute parallel do</span>
+  <span class="k">end subroutine </span><span class="n">evolve</span>
+
+<span class="k">end module </span><span class="n">core</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../profiling/" class="btn btn-neutral float-left" title="Profiling code for GPUs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../data/" class="btn btn-neutral float-right" title="Data environment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, ENCCS and CSC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
