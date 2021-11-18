@@ -1,3 +1,5 @@
+// Copyright (c) 2019 CSC Training
+// Copyright (c) 2021 ENCCS
 // Main routine for heat equation solver in 2D.
 
 #include <stdio.h>

@@ -1,3 +1,5 @@
+! Copyright (c) 2019 CSC Training
+! Copyright (c) 2021 ENCCS
 ! PNG writer for heat equation solver
 module pngwriter
   use heat

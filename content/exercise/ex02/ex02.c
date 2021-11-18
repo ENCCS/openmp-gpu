@@ -1,3 +1,4 @@
+// Copyright (c) 2021 ENCCS
 #include <stdio.h>
 #include <math.h>
 #define NX 102400

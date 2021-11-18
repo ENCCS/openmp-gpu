@@ -59,15 +59,15 @@ you can pull out only some lines, or highlight others. Make sure both C++ and Fo
 
       .. tab:: C++
 
-         .. literalinclude:: code-samples/serial/heat.h
+         .. literalinclude:: exercise/serial/heat.h
                         :language: cpp
-                        :lines: 7-17
+                        :lines: 9-19
                                 
       .. tab:: Fortran
 
-         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
+         .. literalinclude:: exercise/serial/fortran/heat_mod.F90
                         :language: fortran
-                        :lines: 9-15
+                        :lines: 11-17
 
 Building the code
 -----------------

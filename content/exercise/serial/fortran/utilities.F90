@@ -1,3 +1,5 @@
+! Copyright (c) 2019 CSC Training
+! Copyright (c) 2021 ENCCS
 ! Utility routines for heat equation solver
 !   NOTE: This file does not need to be edited!
 module utilities

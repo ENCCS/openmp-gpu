@@ -1,3 +1,4 @@
+! Copyright (c) 2021 ENCCS
 program dotproduct
   implicit none
 

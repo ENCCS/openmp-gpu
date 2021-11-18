@@ -1,3 +1,5 @@
+// Copyright (c) 2019 CSC Training
+// Copyright (c) 2021 ENCCS
 /* Setup routines for heat equation solver */
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* Copyright (c) 2021 ENCCS */
 #include <stdio.h>
 
 #ifdef _OPENMP
