@@ -1,3 +1,4 @@
+/* Copyright (c) 2019 CSC Training */
 // Copyright (c) 2021 ENCCS
 #include <stdio.h>
 #include <math.h>

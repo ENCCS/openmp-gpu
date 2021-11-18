@@ -103,7 +103,7 @@ If the variables are not explicitly mapped, the compiler will do it implicitly:
          .. literalinclude:: exercise/ex04/solution/ex04.c
             :language: c
             :linenos:
-	    :emphasize-lines: 18,25
+	    :emphasize-lines: 19,26
 
 
       .. tab:: Fortran
@@ -111,7 +111,7 @@ If the variables are not explicitly mapped, the compiler will do it implicitly:
 	 .. literalinclude:: exercise/ex04/solution/ex04.F90                 
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 19,27,31
+            :emphasize-lines: 20,24,28,32
 
 
 
@@ -312,7 +312,7 @@ Data can be updated within a target regions  with the transfer direction specifi
          .. literalinclude:: exercise/ex05/solution/ex05.c
             :language: c
             :linenos:
-	    :emphasize-lines: 18,19,20,31,35
+	    :emphasize-lines: 19,20,21,32,36
 
 
       .. tab:: Fortran
@@ -320,7 +320,7 @@ Data can be updated within a target regions  with the transfer direction specifi
 	 .. literalinclude:: exercise/ex05/solution/ex05.F90                 
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 19,20,24,32,37
+            :emphasize-lines: 20,21,25,33,37,38
 
 
 
@@ -381,6 +381,24 @@ Optimize Data Transfers
 
    The exercise is under /content/exercise/data_mapping
 
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: exercise/data_mapping/main.cpp
+            :language: c
+            :linenos:
+	    :emphasize-lines: 39,40,46,47,55,56
+
+      .. tab:: Fortran
+
+	 .. literalinclude:: exercise/data_mapping/main.F90                  
+	    :language: fortran
+            :linenos:
+	    :emphasize-lines: 44,45,50,51,57,58
+
+
+
 .. solution::
 
    .. tabs::
@@ -389,7 +407,7 @@ Optimize Data Transfers
 
          .. literalinclude:: exercise/solution/data_mapping/core.cpp
                         :language: cpp
-			:emphasize-lines: 25,52-53,68-69,83
+			:emphasize-lines: 26,53-54,69-70,84
                         :linenos:
 
 
@@ -397,7 +415,7 @@ Optimize Data Transfers
 
          .. literalinclude:: exercise/solution/data_mapping/fortran/core.F90
                         :language: fortran
-                        :emphasize-lines: 35,60,76,90
+                        :emphasize-lines: 36,46,61,77,91
                         :linenos:
 
 
