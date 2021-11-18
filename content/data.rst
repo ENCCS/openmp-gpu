@@ -103,7 +103,7 @@ If the variables are not explicitly mapped, the compiler will do it implicitly:
          .. literalinclude:: exercise/ex04/solution/ex04.c
             :language: c
             :linenos:
-	    :emphasize-lines: 17,24
+	    :emphasize-lines: 18,25
 
 
       .. tab:: Fortran
@@ -111,7 +111,7 @@ If the variables are not explicitly mapped, the compiler will do it implicitly:
 	 .. literalinclude:: exercise/ex04/solution/ex04.F90                 
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 18,26,30
+            :emphasize-lines: 19,27,31
 
 
 
@@ -312,7 +312,7 @@ Data can be updated within a target regions  with the transfer direction specifi
          .. literalinclude:: exercise/ex05/solution/ex05.c
             :language: c
             :linenos:
-	    :emphasize-lines: 17,18,19,30,34
+	    :emphasize-lines: 18,19,20,31,35
 
 
       .. tab:: Fortran
@@ -320,7 +320,7 @@ Data can be updated within a target regions  with the transfer direction specifi
 	 .. literalinclude:: exercise/ex05/solution/ex05.F90                 
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 18,19,23,31,36
+            :emphasize-lines: 19,20,24,32,37
 
 
 
@@ -389,7 +389,7 @@ Optimize Data Transfers
 
          .. literalinclude:: exercise/solution/data_mapping/core.cpp
                         :language: cpp
-			:emphasize-lines: 24,51-52,67-68,82
+			:emphasize-lines: 25,52-53,68-69,83
                         :linenos:
 
 
@@ -397,7 +397,7 @@ Optimize Data Transfers
 
          .. literalinclude:: exercise/solution/data_mapping/fortran/core.F90
                         :language: fortran
-                        :emphasize-lines: 34,59,75,89
+                        :emphasize-lines: 35,60,76,90
                         :linenos:
 
 

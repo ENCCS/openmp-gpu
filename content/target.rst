@@ -164,7 +164,7 @@ the host to the device and the data between the host and device.
          .. literalinclude:: exercise/ex01/solution/ex01.c
             :language: c
             :linenos:
-	    :emphasize-lines: 17
+	    :emphasize-lines: 18
 
 
       .. tab:: Fortran
@@ -172,7 +172,7 @@ the host to the device and the data between the host and device.
 	 .. literalinclude:: exercise/ex01/solution/ex01.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 18,22
+            :emphasize-lines: 19,23
 
 
 	  
@@ -438,7 +438,7 @@ FOR/DO construct
          .. literalinclude:: exercise/ex02/solution/ex02.c
             :language: c
             :linenos:
-	    :emphasize-lines: 17
+	    :emphasize-lines: 18
 
 
       .. tab:: Fortran
@@ -446,7 +446,7 @@ FOR/DO construct
 	 .. literalinclude:: exercise/ex02/solution/ex02.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 18,22
+            :emphasize-lines: 19,23
 
 
 .. exercise:: Exercise03: ``TEAMS`` vs  ``PARALLEL`` constructs
@@ -480,7 +480,7 @@ FOR/DO construct
          .. literalinclude:: exercise/ex03/solution/ex03.c
             :language: c
             :linenos:
-	    :emphasize-lines: 13,14
+	    :emphasize-lines: 14,15
 
 
       .. tab:: Fortran
@@ -488,7 +488,7 @@ FOR/DO construct
 	 .. literalinclude:: exercise/ex03/solution/ex03.F90                  
 	    :language: fortran
             :linenos:
-            :emphasize-lines: 15,16,20,21
+            :emphasize-lines: 16,17,21,22
 
 
 
@@ -559,13 +559,13 @@ It is convenient to use the composite construct
 
          .. literalinclude:: exercise/solution/offloading/core.cpp
                         :language: cpp
-			:emphasize-lines: 24-25
+			:emphasize-lines: 25-26
 
 
       .. tab:: Fortran
 
          .. literalinclude:: exercise/solution/offloading/fortran/core.F90
                         :language: fortran
-                        :emphasize-lines: 35,45
+                        :emphasize-lines: 36,46
 
 

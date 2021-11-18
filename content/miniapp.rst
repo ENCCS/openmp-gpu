@@ -131,15 +131,15 @@ Let's look at the data structure describing the field:
 
       .. tab:: C++
 
-         .. literalinclude:: code-samples/serial/heat.h
+         .. literalinclude:: exercise/serial/heat.h
                         :language: cpp
-                        :lines: 7-17
+                        :lines: 9-19
                                 
       .. tab:: Fortran
 
-         .. literalinclude:: code-samples/serial/fortran/heat_mod.F90
+         .. literalinclude:: exercise/serial/fortran/heat_mod.F90
                         :language: fortran
-                        :lines: 9-15
+                        :lines: 11-17
 
 Next, the routine that applies the stencil to the previous field to compute the current one:
 
@@ -149,15 +149,15 @@ Next, the routine that applies the stencil to the previous field to compute the 
 
       .. tab:: C++
 
-         .. literalinclude:: code-samples/serial/core.cpp
+         .. literalinclude:: exercise/serial/core.cpp
                         :language: cpp
-                        :lines: 5-36
+                        :lines: 7-38
                                 
       .. tab:: Fortran
 
-         .. literalinclude:: code-samples/serial/fortran/core.F90
+         .. literalinclude:: exercise/serial/fortran/core.F90
                         :language: fortran
-                        :lines: 7-43
+                        :lines: 9-45
 
 Then the routine that handles the main loop over time steps:
                                 
@@ -167,15 +167,15 @@ Then the routine that handles the main loop over time steps:
 
       .. tab:: C++
 
-         .. literalinclude:: code-samples/serial/main.cpp
+         .. literalinclude:: exercise/serial/main.cpp
                         :language: cpp
-                        :lines: 8-9,13-18,25-33,37-39,43-47,64
+                        :lines: 10-11,15-20,27-35,39-41,45-49,66
                                 
       .. tab:: Fortran
 
-         .. literalinclude:: code-samples/serial/fortran/main.F90
+         .. literalinclude:: exercise/serial/fortran/main.F90
                         :language: fortran
-                        :lines: 1-17,19-20,25-26,33-38,42-43,47-48,63
+                        :lines: 3-19,21-22,27-28,35-40,44-45,49-50,65
 
 There's other supporting code to handle user input and produce nice images
 of the current field, but we won't need to touch those, so we won't spend time
@@ -191,15 +191,15 @@ We should look at the routines that initialize the field data structures:
 
       .. tab:: C++
 
-         .. literalinclude:: code-samples/serial/utilities.cpp
+         .. literalinclude:: exercise/serial/utilities.cpp
                         :language: cpp
-                        :lines: 25-31
+                        :lines: 27-33
                                 
       .. tab:: Fortran
 
-         .. literalinclude:: code-samples/serial/fortran/setup.F90
+         .. literalinclude:: exercise/serial/fortran/setup.F90
                         :language: fortran
-                        :lines: 77-78
+                        :lines: 79-80
 
 Building the code
 -----------------
@@ -215,14 +215,14 @@ type `make` and it will build and run for you.
 
          .. code-block:: bash
             
-            cd content/code-samples/serial
+            cd content/exercise/serial
             make
                                 
       .. tab:: Fortran
 
          .. code-block:: bash
             
-            cd content/code-samples/serial/fortran
+            cd content/exercise/serial/fortran
             make
 
 You will see output something like::

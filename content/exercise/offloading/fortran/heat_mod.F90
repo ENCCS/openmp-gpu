@@ -1,3 +1,5 @@
+! Copyright (c) 2019 CSC Training
+! Copyright (c) 2021 ENCCS
 ! Field metadata for heat equation solver
 module heat
   use iso_fortran_env, only : REAL64

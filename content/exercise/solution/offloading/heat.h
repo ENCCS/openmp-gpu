@@ -1,3 +1,5 @@
+// Copyright (c) 2019 CSC Training
+// Copyright (c) 2021 ENCCS
 #ifndef __HEAT_H__
 #define __HEAT_H__
 
