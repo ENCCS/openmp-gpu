@@ -27,6 +27,7 @@ Such processes can be modelled with partial differential equations via discretiz
 Solving for the flow over time can involve a lot of computational effort.
 Fortunately that effort is quite regular and so can suit parallelization with a variety of techniques.
 That includes OpenMP offload to GPUs, so first we will introduce this mini-app and then use it to explore OpenMP offload
+The mini-app is based on one developed by CSC in Finland, and is used here with permission granted by their license.
 
 The partial differential equation
 ---------------------------------
