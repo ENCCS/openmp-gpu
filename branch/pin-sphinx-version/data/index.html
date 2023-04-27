@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Data environment &mdash; OpenMP for GPU offloading  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/togglebutton.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Quick Reference" href="../quick-reference/" />
+    <link rel="prev" title="Offloading to GPU" href="../target/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> OpenMP for GPU offloading
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">The lessons</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../miniapp/">Heat diffusion mini-app</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../target/">Offloading to GPU</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-mapping">Data mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-region">Data region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structured-data-regions">Structured Data Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unstructured-data-regions">Unstructured Data Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimize-data-transfers">Optimize Data Transfers</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">OpenMP for GPU offloading</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Data environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/ENCCS/openmp-gpu/blob/main/content/data.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-environment">
+<h1>Data environment<a class="headerlink" href="#data-environment" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-objectives objectives admonition">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand what are data movement</p></li>
+<li><p>Understand what are structured and unstructured data clauses</p></li>
+<li><p>Learn how to move data explicitly</p></li>
+<li><p>Learn how to compile and run OpenMP code with data movement directives</p></li>
+</ul>
+</div>
+<div class="admonition-prerequisites prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<ol class="arabic simple">
+<li><p>You need …</p></li>
+<li><p>Basic understanding of …</p></li>
+</ol>
+</div>
+<div class="section" id="data-mapping">
+<h2>Data mapping<a class="headerlink" href="#data-mapping" title="Permalink to this headline">¶</a></h2>
+<p>Due to distinct memory spaces on host and device, transferring data
+becomes inevitable. The map cluase on a device construct explicitly
+specifies how items are mapped from the host to the device data
+environment.  The common mapped items consist of arrays(array
+sections), scalars, pointers, and structure elements.  The various
+forms of the map cluase are summarised in the following table</p>
+<table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map([map-type]:list)</span></code></p></td>
+<td><p><span class="xref std std-doc">map clause</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(to:list)</span></code></p></td>
+<td><p><span class="xref std std-doc">On entering the region, variables in the list are initialized on the device using the original values from the host</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map(from:list)</span></code></p></td>
+<td><p><span class="xref std std-doc">At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(tofrom:list)</span></code></p></td>
+<td><p><span class="xref std std-doc">the effect of both a map-to and a map-from</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map(alloc:list)</span></code></p></td>
+<td><p><span class="xref std std-doc">On entering the region, data is allocated and uninitialized on the device</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(list)</span></code></p></td>
+<td><p><span class="xref std std-doc">equivalent to ``map(tofrom:list)``</span></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>When mapping data arrays or pointers, be careful about the array section notation:</dt><dd><ul class="simple">
+<li><p>In C/C++: array[lower-bound:length]</p></li>
+<li><p>In Fortran:array[lower-bound:upper-bound]</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="data-region">
+<h2>Data region<a class="headerlink" href="#data-region" title="Permalink to this headline">¶</a></h2>
+<p>How the target construct creates storage, transfer data, and remove
+storage on the device are clasiffied as two categories: structured
+data region and unstructured data region.</p>
+</div>
+<div class="section" id="structured-data-regions">
+<h2>Structured Data Regions<a class="headerlink" href="#structured-data-regions" title="Permalink to this headline">¶</a></h2>
+<p>The target data construct is used to create a structured data region
+which is convenient for providing persistent data on the device which
+could be used for subseqent target constructs.</p>
+<div class="admonition-syntax typealong toggle-shown dropdown admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target data clause [clauses] </span>
+<span class="w">	</span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"></span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">target</span><span class="w"> </span><span class="nl">data</span><span class="p">:]</span><span class="n">scalar</span><span class="o">-</span><span class="n">logical</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="n">device</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"> </span>
+<span class="n">map</span><span class="p">([</span><span class="n">map</span><span class="o">-</span><span class="nl">type</span> <span class="p">:]</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">use_device_ptr</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target data clause [clauses]</span>
+        <span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$omp end target data</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">:</span>
+<span class="k">if</span><span class="p">(</span> <span class="p">[</span><span class="k">target data</span><span class="p">:]</span><span class="n">scalar</span><span class="o">-</span><span class="kt">logical</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+<span class="n">device</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="kt">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span> 
+<span class="n">map</span><span class="p">([</span><span class="n">map</span><span class="o">-</span><span class="k">type</span> <span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">use_device_ptr</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-example-target-structured-data exercise important admonition">
+<p class="admonition-title">Example:  target structured data</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span><span class="w"></span>
+<span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">init_again</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span><span class="w"></span>
+<span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">output</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">vec_mult</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="n">init</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="cp">#pragma omp target data map(from: p[0:N])</span>
+<span class="w">   </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="cp">#pragma omp target map(to: v1[:N], v2[:N])</span>
+<span class="w">      </span><span class="cp">#pragma omp parallel for</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="w">	</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v2</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">      </span><span class="n">init_again</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="cp">#pragma omp target map(to: v1[:N], v2[:N])</span>
+<span class="w">      </span><span class="cp">#pragma omp parallel for</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="w">	</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">v1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v2</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">output</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">vec_mult</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+   <span class="kt">real</span>    <span class="kd">::</span>  <span class="n">p</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="n">v1</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="n">v2</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+   <span class="kt">integer</span> <span class="kd">::</span>  <span class="n">i</span>
+   <span class="k">call </span><span class="n">init</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+   <span class="c">!$omp target data map(from: p)</span>
+      <span class="c">!$omp target map(to: v1, v2 )</span>
+         <span class="c">!$omp parallel do</span>
+         <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span>
+            <span class="n">p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">v1</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+         <span class="k">end do</span>
+      <span class="c">!$omp end target</span>
+      <span class="k">call </span><span class="n">init_again</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+      <span class="c">!$omp target map(to: v1, v2 )</span>
+         <span class="c">!$omp parallel do</span>
+         <span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span>
+            <span class="n">p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="n">v1</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+         <span class="k">end do</span>
+      <span class="c">!$omp end target</span>
+   <span class="c">!$omp end target data</span>
+   <span class="k">call </span><span class="n">output</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="unstructured-data-regions">
+<h2>Unstructured Data Regions<a class="headerlink" href="#unstructured-data-regions" title="Permalink to this headline">¶</a></h2>
+<p>The unstructured data constructs have much more freedom in creating
+and deleting of data on the device at any appropriate point.</p>
+<div class="admonition-syntax typealong toggle-shown dropdown admonition">
+<p class="admonition-title">Syntax</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target enter data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target exit data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="nl">clause</span><span class="p">:</span><span class="w"> </span>
+<span class="k">if</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="n">logical</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"></span>
+<span class="n">device</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="n">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span><span class="w"> </span>
+<span class="n">map</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">map</span><span class="o">-</span><span class="nl">type</span><span class="p">:]</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">depend</span><span class="p">(</span><span class="n">dependence</span><span class="o">-</span><span class="nl">type</span><span class="p">:</span><span class="n">list</span><span class="p">)</span><span class="w"></span>
+<span class="n">nowait</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target enter data [clauses] </span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target exit data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">:</span> 
+<span class="k">if</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="kt">logical</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+<span class="n">device</span><span class="p">(</span><span class="n">scalar</span><span class="o">-</span><span class="kt">integer</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span> 
+<span class="n">map</span><span class="p">(</span> <span class="p">[</span><span class="n">map</span><span class="o">-</span><span class="k">type</span><span class="p">:]</span> <span class="n">list</span><span class="p">)</span>
+<span class="n">depend</span><span class="p">(</span><span class="n">dependence</span><span class="o">-</span><span class="k">type</span><span class="p">:</span><span class="n">list</span><span class="p">)</span>
+<span class="n">nowait</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-example-target-unstructured-data exercise important admonition">
+<p class="admonition-title">Example:  target unstructured data</p>
+<blockquote>
+<div><p>The unstructured data constructs have much more freedom in
+creating and deleting of data on the device at any appropriate
+point.</p>
+</div></blockquote>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span> <span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">Matrix</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">init_matrix</span><span class="p">(</span><span class="n">Matrix</span><span class="w"> </span><span class="o">*</span><span class="n">mat</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">mat</span><span class="o">-&gt;</span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span><span class="w"></span>
+<span class="w">  </span><span class="n">mat</span><span class="o">-&gt;</span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="cp">#pragma omp target enter data map(alloc:mat-&gt;A[:n])</span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">free_matrix</span><span class="p">(</span><span class="n">Matrix</span><span class="w"> </span><span class="o">*</span><span class="n">mat</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="cp">#pragma omp target exit data map(delete:mat-&gt;A[:mat-&gt;N])</span>
+<span class="w">  </span><span class="n">mat</span><span class="o">-&gt;</span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">free</span><span class="p">(</span><span class="n">mat</span><span class="o">-&gt;</span><span class="n">A</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">mat</span><span class="o">-&gt;</span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">module </span><span class="n">example</span>
+  <span class="kt">real</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span> <span class="k">allocatable</span> <span class="kd">::</span> <span class="n">A</span><span class="p">(:)</span>
+
+  <span class="k">contains</span>
+<span class="k">    subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+      <span class="kt">integer</span> <span class="kd">::</span> <span class="n">N</span>
+
+      <span class="k">allocate</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+      <span class="c">!$omp target enter data map(alloc:A)</span>
+
+    <span class="k">end subroutine </span><span class="n">initialize</span>
+
+    <span class="k">subroutine </span><span class="n">finalize</span><span class="p">()</span>
+
+      <span class="c">!$omp target exit data map(delete:A)</span>
+      <span class="k">deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+    <span class="k">end subroutine </span><span class="n">finalize</span>
+<span class="k">end module </span><span class="n">example</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</div>
+<div class="section" id="optimize-data-transfers">
+<h2>Optimize Data Transfers<a class="headerlink" href="#optimize-data-transfers" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Reduce the amount of data mapping between host and device</p></li>
+<li><p>Try to keep data environment residing on the target device as long
+as possible</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../quick-reference/" class="btn btn-neutral float-right" title="Quick Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../target/" class="btn btn-neutral float-left" title="Offloading to GPU" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, ENCCS and CSC.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

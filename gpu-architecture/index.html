@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to GPU architecture &mdash; OpenMP for GPU offloading  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script data-domain="enccs.github.io/openmp-gpu" defer="defer" src="https://plausible.io/js/script.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Profiling code for GPUs" href="../profiling/" />
+    <link rel="prev" title="Heat diffusion mini-app" href="../miniapp/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            OpenMP for GPU offloading
+              <img src="../_static/ENCCS_CSC_logos.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">The lessons</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">Why OpenMP offloading?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../miniapp/">Heat diffusion mini-app</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to GPU architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#moore-s-law">Moore’s law</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-use-gpus">Why use GPUs?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-is-different">What is different?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gpu-programming-model">GPU Programming Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accelerator-model">Accelerator model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpu-autopsy-volta-gpu">GPU Autopsy. Volta GPU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#heterogeneous-programming">Heterogeneous Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-hierarchy">Thread Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-scalability">Automatic Scalability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-scheduling-simt">Thread Scheduling. SIMT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cuda-c-hip-code-example">CUDA C/HIP code example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-types">Memory types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-topics">Advanced topics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#global-memory-access">Global Memory Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-memory-access">Shared Memory Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unified-memory-access">Unified Memory Access</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#streams">Streams</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overlapping-computations-and-data-movements">Overlapping Computations and Data Movements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-programs-for-gpus">Writing Programs for GPUs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../profiling/">Profiling code for GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../target/">Offloading to GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/">Data environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimization/">Optimizing OpenMP offloaded code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../multi-gpu/">Multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interoperability/">Working alongside GPU libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../porting/">Porting code to OpenMP offloading</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/#preparing-to-teach">Preparing to Teach</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">OpenMP for GPU offloading</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Introduction to GPU architecture</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/openmp-gpu/blob/main/content/gpu-architecture.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction-to-gpu-architecture">
+<h1>Introduction to GPU architecture<a class="headerlink" href="#introduction-to-gpu-architecture" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>Why use GPUs?</p></li>
+<li><p>What is different about GPUs?</p></li>
+<li><p>What is the programming model?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand GPU architecture (resources available to programmer)</p></li>
+<li><p>Understand execution model</p></li>
+</ul>
+</div>
+<div class="admonition-prerequisites prerequisites admonition" id="prerequisites-0">
+<p class="admonition-title">Prerequisites</p>
+<ol class="arabic simple">
+<li><p>Basic C or FORTRAN</p></li>
+<li><p>Basic knowledge about processes and threads</p></li>
+</ol>
+</div>
+<section id="moore-s-law">
+<h2>Moore’s law<a class="headerlink" href="#moore-s-law" title="Permalink to this heading"></a></h2>
+<p>The number of transistors in a dense integrated circuit doubles about every two years.
+More transistors means smaller size of a single element, so higher core frequency can be achieved.
+However, power consumption scales as frequency in third power, so the growth in the core frequency has slowed down significantly.
+Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD, branch prediction, etc.</p>
+<figure class="align-center" id="id17">
+<img alt="../_images/microprocessor-trend-data.png" src="../_images/microprocessor-trend-data.png" />
+<figcaption>
+<p><span class="caption-text">The evolution of microprocessors.
+The number of transistors per chip increase every 2 years or so.
+However it can no longer be explored by the core frequency due to power consumption limits.
+Before 2000, the increase in the single core clock frequency was the major source of the increase in the performance.
+Mid 2000 mark a transition towards multi-core processors.</span><a class="headerlink" href="#id17" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Achieving performance has been based on two main strategies over the years:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Increase the single processor performance:</p></li>
+<li><p>More recently, increase the number of physical cores.</p></li>
+</ul>
+</div></blockquote>
+<section id="why-use-gpus">
+<h3>Why use GPUs?<a class="headerlink" href="#why-use-gpus" title="Permalink to this heading"></a></h3>
+<p>The Graphics processing units (GPU) have been the most common accelerators during the last few years. The term <em>GPU</em> sometimes is used interchangeably with the term <em>accelerator</em>.</p>
+<figure class="align-center" id="id18">
+<img alt="../_images/comparison.png" src="../_images/comparison.png" />
+<figcaption>
+<p><span class="caption-text">A growth in accelerator performance over the years in comparison to Intel CPU performance.
+The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope.</span><a class="headerlink" href="#id18" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="what-is-different">
+<h3>What is different?<a class="headerlink" href="#what-is-different" title="Permalink to this heading"></a></h3>
+<p>CPUs and GPUs were designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing many thousands of them in parallel. GPUs were initially developed for highly-parallel task of graphic processing and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control. More transistors dedicated to data processing is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long
+memory access latencies, both of which are expensive in terms of transistors.</p>
+<figure class="align-center">
+<img alt="../_images/gpu_vs_cpu.png" src="../_images/gpu_vs_cpu.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CPU</p></th>
+<th class="head"><p>GPU</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>General purpose</p></td>
+<td><p>Highly specialized for parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Good for serial processing</p></td>
+<td><p>Good for parallel processing</p></td>
+</tr>
+<tr class="row-even"><td><p>Great for task parallelism</p></td>
+<td><p>Great for data parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Low latency per thread</p></td>
+<td><p>High-throughput</p></td>
+</tr>
+<tr class="row-even"><td><p>Large area dedicated cache and control</p></td>
+<td><p>Hundreds of floating-point execution units</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="gpu-programming-model">
+<h2>GPU Programming Model<a class="headerlink" href="#gpu-programming-model" title="Permalink to this heading"></a></h2>
+<section id="accelerator-model">
+<h3>Accelerator model<a class="headerlink" href="#accelerator-model" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/HardwareReview.png" src="../_images/HardwareReview.png" />
+</figure>
+<p>Accelerators are a separate main circuit board with the processor, memory, power management, etc., but they can not operate by themselves. They are always part of a system (host) in which the CPUs run the operating systems and control the programs execution. This is reflected in the programming model.</p>
+</section>
+<section id="gpu-autopsy-volta-gpu">
+<h3>GPU Autopsy. Volta GPU<a class="headerlink" href="#gpu-autopsy-volta-gpu" title="Permalink to this heading"></a></h3>
+<figure class="align-center" id="id19">
+<img alt="../_images/volta-architecture.png" src="../_images/volta-architecture.png" />
+<figcaption>
+<p><span class="caption-text">A scheme of NVIDIA Volta GPU.</span><a class="headerlink" href="#id19" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>NVIDIA Volta streaming multiprocessor (SM):</p>
+<ul class="simple">
+<li><p>64 single precision cores</p></li>
+<li><p>32 double precision cores</p></li>
+<li><p>64 integer cores</p></li>
+<li><p>8 Tensore cores</p></li>
+<li><p>128 KB memory block for L1 and shared memory</p>
+<ul>
+<li><p>0 - 96 KB can be set to user managed shared memory</p></li>
+<li><p>The rest is L1</p></li>
+</ul>
+</li>
+<li><p>65536 registers - enables the GPU to run a very large number of threads</p></li>
+</ul>
+<figure class="align-center" id="id20">
+<img alt="../_images/volta-sm-architecture.png" src="../_images/volta-sm-architecture.png" />
+<figcaption>
+<p><span class="caption-text">A scheme of NVIDIA Volta streaming multiprocessor.</span><a class="headerlink" href="#id20" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="heterogeneous-programming">
+<h3>Heterogeneous Programming<a class="headerlink" href="#heterogeneous-programming" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/heteprogra.jpeg" src="../_images/heteprogra.jpeg" />
+</figure>
+<p>CPU (host) and GPU (device) codes are mixed. CPU acts as a main processor, controlling the execution workflow.  The host makes all calls, allocates the memory,  and  handles the memory transfers between CPU and GPU. GPUs run tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management. The device code is executed by doing calls to functions (kernels) written specifically to take advantage of the GPU. The kernel calls are asynchronous, the control is returned to the host after a kernel calls. All kernels are executed sequentially.</p>
+</section>
+<section id="thread-hierarchy">
+<h3>Thread Hierarchy<a class="headerlink" href="#thread-hierarchy" title="Permalink to this heading"></a></h3>
+<p>In order to take advantage of the accelerators it is needed to use parallelism. All loops in which the individual iterations are independent of each other can be parallelized. When a kernel is called tens of thousands of threads are created. All threads execute the given kernel with each thread executing the same instructions on different data (<a href="#id1"><span class="problematic" id="id2">*</span></a>S*ingle <a href="#id3"><span class="problematic" id="id4">*</span></a>I*instruction <a href="#id5"><span class="problematic" id="id6">*</span></a>M*ultiple <a href="#id7"><span class="problematic" id="id8">*</span></a>D*ata parallel programming model). These threads are grouped in blocks which are assgined to the SMs. The blocks can not be splitted among the SMs, but in a SM several blocks can be active at a moment. Threads in a block can interact with each other, they can exchange data via the so called shared memory and they can be synchronized. The blocks can not interact with other blocks.</p>
+<figure class="align-center">
+<img alt="../_images/ThreadExecution.jpeg" src="../_images/ThreadExecution.jpeg" />
+</figure>
+<p>With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly. This makes the data management and its access pattern is essential on the GPU. Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly. This allows to hide the memory operations: while some threads wait, others can compute.</p>
+</section>
+<section id="automatic-scalability">
+<h3>Automatic Scalability<a class="headerlink" href="#automatic-scalability" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png" src="../_images/Automatic-Scalability-of-Cuda-via-scaling-the-number-of-Streaming-Multiprocessors-and.png" />
+</figure>
+<p>This programming model automatically implies automatic scalability. Because the blocks are independent of each other they can be executed on any order. A GPU with more SM will be able to run more blocks in the same time.</p>
+</section>
+<section id="thread-scheduling-simt">
+<h3>Thread Scheduling. SIMT<a class="headerlink" href="#thread-scheduling-simt" title="Permalink to this heading"></a></h3>
+<p>A very important concept in GPU programming model is the warp (in CUDA) or wave (in HIP).</p>
+<figure class="align-center">
+<img alt="../_images/Loom.jpeg" src="../_images/Loom.jpeg" />
+</figure>
+<p>A warp (wave) is a group of GPU threads which are grouped physically. In CUDA the warp contains 32 threads, while in HIP a wave contains 64 threads. All threads in a warp (wave) can only execute the same instructions (<a href="#id9"><span class="problematic" id="id10">*</span></a>S*ingle <a href="#id11"><span class="problematic" id="id12">*</span></a>I*struction <a href="#id13"><span class="problematic" id="id14">*</span></a>M*ultiple <a href="#id15"><span class="problematic" id="id16">*</span></a>T*hreads parallel programming model). This means that If an “if” statement is present in the code the and different threads of a warp (wave) have to do different work the warp will practically execute each branch in a serial manner. However different warps can execute different instructions.  Another important detail is that the memory accesses are done per warp (wave). In order to achieve performance the threads in a warp (wave) have to access memory locations adjacent to each other.</p>
+</section>
+<section id="cuda-c-hip-code-example">
+<h3>CUDA C/HIP code example<a class="headerlink" href="#cuda-c-hip-code-example" title="Permalink to this heading"></a></h3>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a_d</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">b_d</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">c_d</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_d</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-types">
+<h3>Memory types<a class="headerlink" href="#memory-types" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/memsch.png" src="../_images/memsch.png" />
+</figure>
+<p>Understanding the basic memory architecture is criticall in order to write efficient programs. GPUs have several types of memory with different access rules. All variables reside in the <strong>Global Memory</strong>.  This is accessible by all active threads. Each thread is allocated a set of <em>Registers</em>, and it cannot access registers that are not parts of that set.  A kernel generally stores frequently used variables that are private to each thread in registers. The cost of accessing variables from registers is less than that required to access variables from the global memory. There is a maximum of registers available for each thread, if the limit is exceed the values will be spilled. The <em>Shared Memory</em> is another fast type of memory. All threads of a block can access its shared memory and it can  can be used for inter-thread communication or as user controled cached. In addition to these,  memories with special access pattern (<em>Costant</em>, <em>Texture</em>, <em>Surface</em>) are also provided.</p>
+</section>
+</section>
+<section id="advanced-topics">
+<h2>Advanced topics<a class="headerlink" href="#advanced-topics" title="Permalink to this heading"></a></h2>
+<p>OpenMP exposes high-level techniques that let you write relatively simple code to take advantage of powerful capabilities of the GPUs.
+These mostly relate to how to move data, avoid moving data, and where to store it.
+So that we have an appreciation of how this can work, some of these concepts are introduced now.</p>
+<section id="global-memory-access">
+<h3>Global Memory Access<a class="headerlink" href="#global-memory-access" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/coalesced.png" src="../_images/coalesced.png" />
+</figure>
+<p>Grouping of threads into warps is not only relevant to computation, but also to the global memory accesses. Memory transactions are done per warp in continuous blocks of of 32B, 64B, or 128B.  In addition these memory transactions must be naturally aligned. Only the 32-, 64-, or 128-byte segments of device memory that are aligned to their size (i.e., whose first address is a multiple of their size) can be read or written by memory transactions. Not fulfilling these requirements will result in extra memory transactions.</p>
+</section>
+<section id="shared-memory-access">
+<h3>Shared Memory Access<a class="headerlink" href="#shared-memory-access" title="Permalink to this heading"></a></h3>
+<figure class="align-center">
+<img alt="../_images/shared_mem.png" src="../_images/shared_mem.png" />
+</figure>
+<p>The shared memory is an on-chip memory with much higher bandwidth and much lower latency than the global memory. Because of this it can be used as a user programable cache. Data which needs to be used more than once in a block (by different threads for example), can be placed (cached) into the local memory to avoid extra transactions with global memory. The shared memory is divided into equally-sized memory modules, called banks, which can be accessed simultaneously, but with only one access per cycle. If two addresses of a memory request fall in the same memory bank, there is a bank conflict and the access has to be serialized. In this case the memory access is splitted in multiple transactions which are conflict-free. The number of banks can differ for different GPUs. If the same data is required by different threads broadcast access will occur.</p>
+</section>
+<section id="unified-memory-access">
+<h3>Unified Memory Access<a class="headerlink" href="#unified-memory-access" title="Permalink to this heading"></a></h3>
+<p>The Unified Memory defines a maanged memory spaced in which the CPUs and GPUs see a single coeherent image with a common address space. Because the underlying system manages the data accesses and locality within a GPU program without need for explicit memory copy calls the data movement appears more transparent to the application. Each allocation is accessible on both the CPU and GPU with the same pointer in the managed memory space and it is automatically migrated to where it is needed. Not all GPUs have support for this feature. The OpenMP runtime may be able to take advantage of this for you.</p>
+</section>
+</section>
+<section id="streams">
+<h2>Streams<a class="headerlink" href="#streams" title="Permalink to this heading"></a></h2>
+<p>A <em>stream</em> is a sequence of asynchronous  operations that execute on the device in the order in which they are issued by the host code. While operations within a stream are guaranteed to execute in the prescribed order, operations in different streams can be interleaved and, when possible, they can even run concurrently. When no stream is specified, the default stream (also called the “null stream”) is used. The default stream is different from other streams because it is a synchronizing stream with respect to operations on the device: no operation in the default stream will begin until all previously issued operations in any stream on the device have completed, and an operation in the default stream must complete before any other operation (in any stream on the device) will begin. The non-default streams can be used operations. The most common use of non-default streams is for overlapping computations and data movements.</p>
+<section id="overlapping-computations-and-data-movements">
+<h3>Overlapping Computations and Data Movements<a class="headerlink" href="#overlapping-computations-and-data-movements" title="Permalink to this heading"></a></h3>
+<p>The simplest CUDA program consists of three steps: copying the memory from host to device, kernel execution, and copy the memory from device to host. As an example let’s consider that the time spent to copy the data is linear with the size of the data, and that the computations can be splitted in <em>N</em> parts, each independednt of each other and that the total amount of the floating point operations per part decreases by <em>1/N</em>. If the GPU overlapping data transfers and kernel execution we can image two scenarios like in the figure below.</p>
+<figure class="align-center">
+<img alt="../_images/C2050Timeline.png" src="../_images/C2050Timeline.png" />
+</figure>
+<p>In the first one all data is copied in one transfer to GPU. Next it is processed doing, then in the last step the results are copied to the host, again in one transfer. In the second one the data is split into 4 parts. Each part is transfered from the host to the device, processed and then the results are transfered back to the host. We can see that there is ovelap between copying from host to device, execution, the copying  from the device to the host.</p>
+</section>
+</section>
+<section id="writing-programs-for-gpus">
+<h2>Writing Programs for GPUs<a class="headerlink" href="#writing-programs-for-gpus" title="Permalink to this heading"></a></h2>
+<p>In order to take advantage of the GPUs computing power, the programs have to be written specifically for it.  There are three ways to take advantage of the GPUs computing power, from less to more difficult:</p>
+<ol class="arabic simple">
+<li><p>Frameworks like Kokkos or AMReX, to automate the parallelization</p></li>
+<li><p>Directive based programming like <strong>OpenMP</strong> or OpenACC,  the existing serial code is annotated to pinpoint accelerator-offloadable regions</p></li>
+<li><p>native GPU programming CUDA, HIP, or OpenCL, SYCL</p></li>
+</ol>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>GPUs are highly parallel devices that can execute certain parts of the program in many parallel threads.</p></li>
+<li><p>CPU controls the works flow and makes all the allocations and data transfers.</p></li>
+<li><p>In order to use the GPU efficiently, one has to split their the problem  in many parts that can run simultaneously.</p></li>
+</ul>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>GPUs can provide much higher performance than CPU</p></li>
+<li><p>SIMD &amp; SIMT programming model</p></li>
+<li><p>Directive bases programming is possible</p></li>
+<li><p>Various resources can be used to accelerate the code</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../miniapp/" class="btn btn-neutral float-left" title="Heat diffusion mini-app" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../profiling/" class="btn btn-neutral float-right" title="Profiling code for GPUs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, ENCCS and CSC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
